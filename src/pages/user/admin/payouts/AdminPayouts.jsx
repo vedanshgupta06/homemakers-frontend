@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
-import {
-  getRequestedWeeklyPayouts,
-  payWeeklyPayout,
-} from "../../../api/adminPayoutApi";
+import { useNavigate } from "react-router-dom";
+import { getRequestedWeeklyPayouts } from "../../../../api/adminPayoutApi";
 
 const AdminPayouts = () => {
   const [payouts, setPayouts] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     getRequestedWeeklyPayouts()
@@ -19,26 +18,14 @@ const AdminPayouts = () => {
       });
   }, []);
 
- const handlePay = (id) => {
-  payWeeklyPayout(id, "ADMIN_MANUAL_PAY")
-    .then(() => {
-      setPayouts((prev) => prev.filter((p) => p.id !== id));
-      alert("✅ Weekly payout marked as PAID");
-    })
-    .catch(() => {
-      alert("❌ Failed to pay weekly payout");
-    });
-};
-
-
   return (
-    <div>
+    <div style={{ padding: "24px" }}>
       <h2>Admin – Requested Weekly Payouts</h2>
 
       {payouts.length === 0 ? (
         <p>No requested payouts 🎉</p>
       ) : (
-        <table>
+        <table border="1" cellPadding="8" cellSpacing="0">
           <thead>
             <tr>
               <th>ID</th>
@@ -62,7 +49,11 @@ const AdminPayouts = () => {
                 <td>{p.status}</td>
                 <td>
                   {p.status === "REQUESTED" && (
-                    <button onClick={() => handlePay(p.id)}>
+                    <button
+                      onClick={() =>
+                        navigate(`/admin/payouts/${p.id}/pay`)
+                      }
+                    >
                       Pay
                     </button>
                   )}

@@ -3,13 +3,13 @@ import Login from "./auth/Login";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import RoleRedirect from "./routes/RoleRedirect";
 
-// USER
+/* USER */
 import UserDashboard from "./pages/user/UserDashboard";
-import ProvidersList from "./pages/user/ProvidersList";
-import ProviderDetails from "./pages/user/ProviderDetails";
+import ProvidersList from "./pages/user/admin/providers/ProvidersList";
+import ProviderDetails from "./pages/user/admin/providers/ProviderDetails";
 import MyBookings from "./pages/user/MyBookings";
 
-// PROVIDER
+/* PROVIDER */
 import ProviderDashboard from "./pages/provider/ProviderDashboard";
 import ProviderBookings from "./pages/provider/ProviderBookings";
 import ProviderAvailability from "./pages/provider/ProviderAvailability";
@@ -19,8 +19,14 @@ import ProviderEarnings from "./pages/provider/ProviderEarnings";
 import ProviderPayouts from "./pages/provider/ProviderPayouts";
 import ProviderDeductions from "./pages/provider/ProviderDeductions";
 
-// ADMIN
-import AdminPayouts from "./pages/user/admin/AdminPayouts";
+/* ADMIN */
+import AdminLayout from "./pages/user/admin/layout/AdminLayout";
+import AdminDashboard from "./pages/user/admin/dashboard/AdminDashboard";
+import AdminPayouts from "./pages/user/admin/payouts/AdminPayouts";
+import ProvidersListAdmin from "./pages/user/admin/providers/ProvidersList";
+import ProviderDetailsAdmin from "./pages/user/admin/providers/ProviderDetails";
+import AdminBookings from "./pages/user/admin/bookings/AdminBookings";
+import AdminReports from "./pages/user/admin/reports/AdminReports";
 
 function App() {
   return (
@@ -31,7 +37,7 @@ function App() {
         <Route path="/" element={<Navigate to="/login" />} />
         <Route path="/login" element={<Login />} />
 
-        {/* AFTER LOGIN */}
+        {/* REDIRECT AFTER LOGIN */}
         <Route
           path="/redirect"
           element={
@@ -41,7 +47,7 @@ function App() {
           }
         />
 
-        {/* USER */}
+        {/* ================= USER ================= */}
         <Route
           path="/user"
           element={
@@ -75,7 +81,7 @@ function App() {
           }
         />
 
-        {/* PROVIDER */}
+        {/* ================= PROVIDER ================= */}
         <Route
           path="/provider"
           element={
@@ -141,16 +147,22 @@ function App() {
           }
         />
 
-        {/* ADMIN */}
-      
+        {/* ================= ADMIN ================= */}
         <Route
-          path="/admin/payouts"
+          path="/admin"
           element={
             <ProtectedRoute allowedRoles={["ADMIN"]}>
-              <AdminPayouts />
+              <AdminLayout />
             </ProtectedRoute>
           }
-        />
+        >
+          <Route index element={<AdminDashboard />} />
+          <Route path="payouts" element={<AdminPayouts />} />
+          <Route path="providers" element={<ProvidersListAdmin />} />
+          <Route path="providers/:providerId" element={<ProviderDetailsAdmin />} />
+          <Route path="bookings" element={<AdminBookings />} />
+          <Route path="reports" element={<AdminReports />} />
+        </Route>
 
         {/* FALLBACK */}
         <Route path="*" element={<Navigate to="/login" />} />

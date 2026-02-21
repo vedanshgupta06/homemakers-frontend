@@ -1,151 +1,228 @@
 import { useEffect, useState } from "react";
-import api from "../../api/axios";
+import {
+  getProviderBookings,
+  acceptBooking,
+  rejectBooking,
+} from "../../api/providerBookingApi";
 
-function ProviderBookings() {
+/* ============================= */
+/* HOURLY SERVICES LIST */
+/* ============================= */
+const HOURLY_SERVICES = [
+  "BABYSITTING",
+  "ELDER_CARE",
+  "COOKING"
+];
+
+export default function ProviderBookings() {
   const [bookings, setBookings] = useState([]);
-  const [error, setError] = useState("");
-  const [loadingId, setLoadingId] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadBookings();
   }, []);
 
-  const loadBookings = () => {
-    api.get("/api/bookings/provider")
-      .then(res => {
-        setBookings(res.data || []);
-        setError("");
-      })
-      .catch(err => {
-        console.error(err);
-        setError("Failed to load bookings");
-      });
+  const loadBookings = async () => {
+    try {
+      const res = await getProviderBookings();
+      setBookings(res.data || []);
+    } catch (err) {
+      console.error("Failed to load bookings", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const acceptBooking = async (id) => {
+  const handleAccept = async (bookingId) => {
     try {
-      setLoadingId(id);
-      await api.put(`/api/bookings/provider/${id}/accept`);
+      await acceptBooking(bookingId);
       loadBookings();
-    } catch {
+    } catch (err) {
       alert("Failed to accept booking");
-    } finally {
-      setLoadingId(null);
     }
   };
 
-  const rejectBooking = async (id) => {
+  const handleReject = async (bookingId) => {
     try {
-      setLoadingId(id);
-      await api.put(`/api/bookings/provider/${id}/reject`);
+      await rejectBooking(bookingId);
       loadBookings();
-    } catch {
+    } catch (err) {
       alert("Failed to reject booking");
-    } finally {
-      setLoadingId(null);
     }
   };
 
-  const completeBooking = async (id) => {
-    try {
-      setLoadingId(id);
-      await api.put(`/api/bookings/provider/${id}/complete`);
-      loadBookings();
-    } catch {
-      alert("Failed to complete booking");
-    } finally {
-      setLoadingId(null);
-    }
-  };
-
-  // ✅ COMPLETE + SAFE STATUS STYLES
-  const statusStyle = {
-    PENDING: { bg: "#fef3c7", color: "#92400e" },
-    CONFIRMED: { bg: "#dcfce7", color: "#166534" },
-    COMPLETED: { bg: "#e0e7ff", color: "#3730a3" },
-    REJECTED: { bg: "#fee2e2", color: "#991b1b" },
-    CANCELLED: { bg: "#f3f4f6", color: "#374151" }
-  };
+  if (loading) return <p>Loading bookings...</p>;
+  if (bookings.length === 0) return <p>No bookings available</p>;
 
   return (
     <div style={{ padding: "20px" }}>
-      <h2>My Bookings (Provider)</h2>
+      <h2>My Bookings</h2>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      {bookings.length === 0 && !error && <p>No bookings yet</p>}
+      <div style={{ marginTop: "20px" }}>
+        {bookings.map((booking) => {
 
-      <ul style={{ padding: 0 }}>
-        {bookings.map(b => (
-          <li
-            key={b.id}
-            style={{
-              border: "1px solid #e5e7eb",
-              borderRadius: "8px",
-              padding: "12px",
-              marginBottom: "12px",
-              listStyle: "none"
-            }}
-          >
-            <div><b>Date:</b> {b.availability?.date || "-"}</div>
-            <div>
-              <b>Time:</b> {b.availability?.startTime || "-"} - {b.availability?.endTime || "-"}
+          /* ============================= */
+          /* CHECK IF HOURLY SERVICE EXISTS */
+          /* ============================= */
+          const hasHourlyService = booking.services?.some(service =>
+            HOURLY_SERVICES.includes(service)
+          );
+
+          /* ============================= */
+          /* CALCULATE HOURS */
+          /* ============================= */
+          const calculatedHours =
+            booking.hoursPerDay ??
+            (
+              booking.availability?.startTime &&
+              booking.availability?.endTime
+                ? (
+                    (new Date(`1970-01-01T${booking.availability.endTime}`) -
+                     new Date(`1970-01-01T${booking.availability.startTime}`))
+                    / (1000 * 60 * 60)
+                  )
+                : null
+            );
+
+          return (
+            <div
+              key={booking.id}
+              style={{
+                border: "1px solid #e5e7eb",
+                borderRadius: "12px",
+                padding: "20px",
+                marginBottom: "20px",
+                background: "#ffffff",
+                boxShadow: "0 4px 10px rgba(0,0,0,0.05)"
+              }}
+            >
+              {/* STATUS */}
+              <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <h4>Service Date</h4>
+                <StatusBadge status={booking.status} />
+              </div>
+
+              <p>
+                <strong>{booking.availability?.date}</strong>
+              </p>
+
+              <p>
+                {booking.availability?.startTime} - {booking.availability?.endTime}
+              </p>
+
+              <p>
+                <strong>Customer:</strong>{" "}
+                {booking.user?.name || booking.user?.email || "N/A"}
+              </p>
+
+              {/* ============================= */}
+              {/* SELECTED SERVICES */}
+              {/* ============================= */}
+              {booking.services?.length > 0 && (
+                <>
+                  <hr style={{ margin: "15px 0" }} />
+                  <p><strong>Selected Services</strong></p>
+
+                  <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                    {booking.services.map((service, index) => (
+                      <span
+                        key={index}
+                        style={{
+                          background: "#f3f4f6",
+                          padding: "6px 12px",
+                          borderRadius: "20px",
+                          fontSize: "13px"
+                        }}
+                      >
+                        {service}
+                      </span>
+                    ))}
+                  </div>
+                </>
+              )}
+
+              {/* ============================= */}
+              {/* SHOW HOURS ONLY IF HOURLY SERVICE */}
+              {/* ============================= */}
+              {hasHourlyService && calculatedHours && (
+                <p style={{ marginTop: "15px" }}>
+                  <strong>Daily Hours:</strong> {calculatedHours} hrs
+                </p>
+              )}
+
+              {/* ============================= */}
+              {/* WORK INFO */}
+              {/* ============================= */}
+              {booking.workStartDate && (
+                <>
+                  <hr style={{ margin: "15px 0" }} />
+
+                  <p><strong>Work Start:</strong> {booking.workStartDate}</p>
+                  <p>
+                    <strong>Work End:</strong>{" "}
+                    {booking.workEndDate || "Ongoing"}
+                  </p>
+
+                  <p><strong>Total Days:</strong> {booking.totalDays}</p>
+                  <p><strong>Chargeable Days:</strong> {booking.chargeableDays}</p>
+                  <p><strong>Holidays:</strong> {booking.holidays}</p>
+                </>
+              )}
+
+              {/* ACCEPT / REJECT */}
+              {booking.status === "PENDING" && (
+                <div style={{ marginTop: "15px" }}>
+                  <button onClick={() => handleAccept(booking.id)}>
+                    Accept
+                  </button>
+
+                  <button
+                    onClick={() => handleReject(booking.id)}
+                    style={{ marginLeft: "10px" }}
+                  >
+                    Reject
+                  </button>
+                </div>
+              )}
             </div>
-            <div><b>User:</b> {b.user?.email || "-"}</div>
-
-            <div style={{ margin: "8px 0" }}>
-              <span
-                style={{
-                  backgroundColor: statusStyle[b.status]?.bg || "#e5e7eb",
-                  color: statusStyle[b.status]?.color || "#374151",
-                  padding: "4px 8px",
-                  borderRadius: "6px",
-                  fontSize: "12px",
-                  fontWeight: "600"
-                }}
-              >
-                {b.status}
-              </span>
-            </div>
-
-            {/* ACTIONS */}
-            {b.status === "PENDING" && (
-              <>
-                <button
-                  onClick={() => acceptBooking(b.id)}
-                  disabled={loadingId === b.id}
-                >
-                  {loadingId === b.id ? "Processing..." : "Accept"}
-                </button>{" "}
-                <button
-                  onClick={() => rejectBooking(b.id)}
-                  disabled={loadingId === b.id}
-                >
-                  {loadingId === b.id ? "Processing..." : "Reject"}
-                </button>
-              </>
-            )}
-
-            {b.status === "CONFIRMED" && (
-              <button
-                onClick={() => completeBooking(b.id)}
-                disabled={loadingId === b.id}
-              >
-                {loadingId === b.id ? "Processing..." : "Mark as Completed"}
-              </button>
-            )}
-
-            {(b.status === "REJECTED" ||
-              b.status === "COMPLETED" ||
-              b.status === "CANCELLED") && (
-              <span style={{ color: "gray" }}>
-                No action available
-              </span>
-            )}
-          </li>
-        ))}
-      </ul>
+          );
+        })}
+      </div>
     </div>
   );
 }
 
-export default ProviderBookings;
+/* ============================= */
+/* STATUS BADGE */
+/* ============================= */
+const StatusBadge = ({ status }) => {
+  const getColor = () => {
+    switch (status) {
+      case "PENDING":
+        return "#6b7280";
+      case "CONFIRMED":
+        return "#2563eb";
+      case "COMPLETED":
+        return "#16a34a";
+      case "CANCELLED":
+        return "#dc2626";
+      default:
+        return "#6b7280";
+    }
+  };
+
+  return (
+    <span
+      style={{
+        padding: "6px 12px",
+        borderRadius: "20px",
+        fontSize: "13px",
+        fontWeight: "bold",
+        background: getColor(),
+        color: "white",
+      }}
+    >
+      {status}
+    </span>
+  );
+};

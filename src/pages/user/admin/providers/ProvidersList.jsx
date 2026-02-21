@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import api from "../../api/axios";
+import api from "../../../../api/axios";
 import { Link } from "react-router-dom";
-import { SERVICES } from "../../constants/services";
+import { SERVICES } from "../../../../constants/services";
 
 function ProvidersList() {
   const [providers, setProviders] = useState([]);

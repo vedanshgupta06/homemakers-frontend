@@ -35,7 +35,7 @@ const Login = () => {
       // Redirect based on role
       if (role === "USER") navigate("/user");
       else if (role === "PROVIDER") navigate("/provider");
-      else if (role === "ADMIN") navigate("/admin/payouts");
+      else if (role === "ADMIN") navigate("/admin");
 
     } catch (err) {
       console.error("Login failed", err);

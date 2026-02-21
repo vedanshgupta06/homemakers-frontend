@@ -6,7 +6,7 @@ const RoleRedirect = () => {
 
   console.log("ROLE REDIRECT:", role);
 
-  if (role === "ADMIN") return <Navigate to="/admin/earnings" replace />;
+  if (role === "ADMIN") return <Navigate to="/admin" replace />;
   if (role === "PROVIDER") return <Navigate to="/provider" replace />;
   if (role === "USER") return <Navigate to="/user" replace />;
 

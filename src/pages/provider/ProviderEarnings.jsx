@@ -1,107 +1,144 @@
 import { useEffect, useState } from "react";
-import {
-  getWeeklySummary,
-  requestWeeklyPayout,
-} from "../../api/providerPayoutTransactionApi";
+import { getProviderEarnings } from "../../api/providerEarningsApi";
+import { requestPayout } from "../../api/providerPayoutApi";
 
 export default function ProviderEarnings() {
-  const [summaries, setSummaries] = useState([]);
+  const [earnings, setEarnings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [withdrawing, setWithdrawing] = useState(false);
 
-  const loadSummary = async () => {
+  useEffect(() => {
+    loadEarnings();
+  }, []);
+
+  const loadEarnings = async () => {
     try {
-      const res = await getWeeklySummary();
-      setSummaries(res.data);
+      const res = await getProviderEarnings();
+      setEarnings(res.data || []);
     } catch (err) {
-      console.error("Failed to load weekly summary", err);
+      console.error("Failed to load earnings", err);
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    loadSummary();
-  }, []);
+  const handleWithdraw = async () => {
+    const confirm = window.confirm(
+      "Are you sure you want to request payout for all available earnings?"
+    );
+    if (!confirm) return;
 
-  const handleWithdraw = async (bookingId, weekNo, amount) => {
     try {
-      await requestWeeklyPayout(bookingId, weekNo, amount); // ✅ FIX
-      alert("Weekly payout requested");
-      loadSummary();
+      setWithdrawing(true);
+      await requestPayout();
+      alert("Withdrawal requested successfully!");
+      loadEarnings();
     } catch (err) {
       alert(
         err?.response?.data?.message ||
-          err.message ||
           "Failed to request payout"
       );
+    } finally {
+      setWithdrawing(false);
     }
   };
 
-  if (loading) return <p>Loading weekly salary...</p>;
-  if (summaries.length === 0)
-    return <p>No weekly payouts available</p>;
+  const availableAmount = earnings
+    .filter((e) => e.status === "AVAILABLE")
+    .reduce((sum, e) => sum + e.amount, 0);
+
+  if (loading) return <p>Loading earnings...</p>;
+  if (earnings.length === 0)
+    return <p>No earnings generated yet.</p>;
 
   return (
-    <div>
-      <h2>Weekly Salary (This Month)</h2>
+    <div style={{ padding: "20px" }}>
+      <h2>My Earnings</h2>
 
-      {summaries.map((summary) => (
-        <div key={`${summary.bookingId}-${summary.serviceName}`}>
-          <h4>
-            Booking #{summary.bookingId} — {summary.serviceName}
-          </h4>
+      {/* Withdraw Section */}
+      {availableAmount > 0 && (
+        <div
+          style={{
+            marginBottom: "20px",
+            padding: "15px",
+            border: "1px solid #e5e7eb",
+            borderRadius: "10px",
+            background: "#f8fafc"
+          }}
+        >
+          <p>
+            <strong>Available Balance:</strong> ₹{availableAmount}
+          </p>
 
-          <table border="1" cellPadding="8" cellSpacing="0">
-            <thead>
-              <tr>
-                <th>Week</th>
-                <th>Amount</th>
-                <th>Status</th>
-                <th>Action</th>
-              </tr>
-            </thead>
+          <button
+            onClick={handleWithdraw}
+            disabled={withdrawing}
+            style={{
+              marginTop: "10px",
+              padding: "8px 16px",
+              background: "#16a34a",
+              color: "white",
+              border: "none",
+              borderRadius: "6px",
+              cursor: "pointer"
+            }}
+          >
+            {withdrawing ? "Processing..." : "Withdraw"}
+          </button>
+        </div>
+      )}
 
-            <tbody>
-              {summary.weeks.map((week) => (
-                <tr key={week.weekNo}>
-                  <td>Week {week.weekNo}</td>
-                  <td>₹{week.amount}</td>
-                  <td>{week.status}</td>
-                  <td>
-                    {week.status === "AVAILABLE" && (
-                      <button
-                        onClick={() =>
-                          handleWithdraw(
-                            summary.bookingId,
-                            week.weekNo,
-                            week.amount
-                          )
-                        }
-                      >
-                        Withdraw
-                      </button>
-                    )}
+      {/* Earnings List */}
+      {earnings.map((earning) => (
+        <div
+          key={earning.id}
+          style={{
+            border: "1px solid #e5e7eb",
+            borderRadius: "10px",
+            padding: "16px",
+            marginBottom: "15px",
+            background: "#ffffff"
+          }}
+        >
+          <p><strong>Booking ID:</strong> {earning.booking?.id}</p>
+          <p>
+            <strong>Service Date:</strong>{" "}
+            {earning.booking?.availability?.date}
+          </p>
+          <p>
+            <strong>Customer:</strong>{" "}
+            {earning.booking?.user?.email}
+          </p>
+          <p>
+            <strong>Amount:</strong> ₹{earning.amount}
+          </p>
 
-                    {week.status === "PENDING" && (
-                      <span style={{ color: "orange" }}>
-                        Requested
-                      </span>
-                    )}
-
-                    {week.status === "PAID" && (
-                      <span style={{ color: "green" }}>
-                        Paid ✓
-                      </span>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-
-          <br />
+          <StatusBadge status={earning.status} />
         </div>
       ))}
     </div>
   );
 }
+
+const StatusBadge = ({ status }) => {
+  const colors = {
+    AVAILABLE: "#2563eb",
+    REQUESTED: "#f59e0b",
+    PAID: "#16a34a"
+  };
+
+  return (
+    <span
+      style={{
+        padding: "6px 12px",
+        borderRadius: "20px",
+        fontSize: "13px",
+        fontWeight: "bold",
+        background: colors[status] || "#6b7280",
+        color: "white"
+      }}
+    >
+      {status}
+    </span>
+  );
+};
