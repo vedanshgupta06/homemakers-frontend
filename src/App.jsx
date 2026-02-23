@@ -22,12 +22,11 @@ import ProviderDeductions from "./pages/provider/ProviderDeductions";
 /* ADMIN */
 import AdminLayout from "./pages/user/admin/layout/AdminLayout";
 import AdminDashboard from "./pages/user/admin/dashboard/AdminDashboard";
-import AdminPayouts from "./pages/user/admin/payouts/AdminPayouts";
 import ProvidersListAdmin from "./pages/user/admin/providers/ProvidersList";
 import ProviderDetailsAdmin from "./pages/user/admin/providers/ProviderDetails";
 import AdminBookings from "./pages/user/admin/bookings/AdminBookings";
+import AdminPayouts from "./pages/user/admin/payouts/AdminPayouts";
 import AdminReports from "./pages/user/admin/reports/AdminReports";
-
 function App() {
   return (
     <BrowserRouter>
@@ -148,6 +147,7 @@ function App() {
         />
 
         {/* ================= ADMIN ================= */}
+       {/* ================= ADMIN ================= */}
         <Route
           path="/admin"
           element={
@@ -157,6 +157,7 @@ function App() {
           }
         >
           <Route index element={<AdminDashboard />} />
+
           <Route path="payouts" element={<AdminPayouts />} />
           <Route path="providers" element={<ProvidersListAdmin />} />
           <Route path="providers/:providerId" element={<ProviderDetailsAdmin />} />

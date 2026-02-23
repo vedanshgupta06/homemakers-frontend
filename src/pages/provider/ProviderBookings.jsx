@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import api from "../../api/axios";
 import {
   getProviderBookings,
   acceptBooking,
@@ -34,20 +35,36 @@ export default function ProviderBookings() {
   };
 
   const handleAccept = async (bookingId) => {
-    try {
-      await acceptBooking(bookingId);
-      loadBookings();
-    } catch (err) {
-      alert("Failed to accept booking");
-    }
+    await acceptBooking(bookingId);
+    loadBookings();
   };
 
   const handleReject = async (bookingId) => {
+    await rejectBooking(bookingId);
+    loadBookings();
+  };
+
+  /* ============================= */
+  /* START WORK */
+  /* ============================= */
+  const handleStartWork = async (bookingId) => {
     try {
-      await rejectBooking(bookingId);
+      await api.put(`/api/bookings/${bookingId}/start`);
       loadBookings();
     } catch (err) {
-      alert("Failed to reject booking");
+      alert("Failed to start work");
+    }
+  };
+
+  /* ============================= */
+  /* END WORK */
+  /* ============================= */
+  const handleEndWork = async (bookingId) => {
+    try {
+      await api.put(`/api/bookings/${bookingId}/end`);
+      loadBookings();
+    } catch (err) {
+      alert("Failed to end work");
     }
   };
 
@@ -61,16 +78,10 @@ export default function ProviderBookings() {
       <div style={{ marginTop: "20px" }}>
         {bookings.map((booking) => {
 
-          /* ============================= */
-          /* CHECK IF HOURLY SERVICE EXISTS */
-          /* ============================= */
           const hasHourlyService = booking.services?.some(service =>
             HOURLY_SERVICES.includes(service)
           );
 
-          /* ============================= */
-          /* CALCULATE HOURS */
-          /* ============================= */
           const calculatedHours =
             booking.hoursPerDay ??
             (
@@ -96,16 +107,12 @@ export default function ProviderBookings() {
                 boxShadow: "0 4px 10px rgba(0,0,0,0.05)"
               }}
             >
-              {/* STATUS */}
               <div style={{ display: "flex", justifyContent: "space-between" }}>
                 <h4>Service Date</h4>
                 <StatusBadge status={booking.status} />
               </div>
 
-              <p>
-                <strong>{booking.availability?.date}</strong>
-              </p>
-
+              <p><strong>{booking.availability?.date}</strong></p>
               <p>
                 {booking.availability?.startTime} - {booking.availability?.endTime}
               </p>
@@ -115,9 +122,7 @@ export default function ProviderBookings() {
                 {booking.user?.name || booking.user?.email || "N/A"}
               </p>
 
-              {/* ============================= */}
-              {/* SELECTED SERVICES */}
-              {/* ============================= */}
+              {/* SERVICES */}
               {booking.services?.length > 0 && (
                 <>
                   <hr style={{ margin: "15px 0" }} />
@@ -141,49 +146,63 @@ export default function ProviderBookings() {
                 </>
               )}
 
-              {/* ============================= */}
-              {/* SHOW HOURS ONLY IF HOURLY SERVICE */}
-              {/* ============================= */}
+              {/* HOURS */}
               {hasHourlyService && calculatedHours && (
                 <p style={{ marginTop: "15px" }}>
                   <strong>Daily Hours:</strong> {calculatedHours} hrs
                 </p>
               )}
 
-              {/* ============================= */}
               {/* WORK INFO */}
-              {/* ============================= */}
               {booking.workStartDate && (
                 <>
                   <hr style={{ margin: "15px 0" }} />
-
                   <p><strong>Work Start:</strong> {booking.workStartDate}</p>
                   <p>
                     <strong>Work End:</strong>{" "}
                     {booking.workEndDate || "Ongoing"}
                   </p>
-
                   <p><strong>Total Days:</strong> {booking.totalDays}</p>
                   <p><strong>Chargeable Days:</strong> {booking.chargeableDays}</p>
                   <p><strong>Holidays:</strong> {booking.holidays}</p>
                 </>
               )}
 
-              {/* ACCEPT / REJECT */}
-              {booking.status === "PENDING" && (
-                <div style={{ marginTop: "15px" }}>
-                  <button onClick={() => handleAccept(booking.id)}>
-                    Accept
-                  </button>
+              {/* ============================= */}
+              {/* ACTION BUTTONS */}
+              {/* ============================= */}
+              <div style={{ marginTop: "15px", display: "flex", gap: "10px" }}>
+                
+                {booking.status === "PENDING" && (
+                  <>
+                    <button onClick={() => handleAccept(booking.id)}>
+                      Accept
+                    </button>
+                    <button onClick={() => handleReject(booking.id)}>
+                      Reject
+                    </button>
+                  </>
+                )}
 
+                {booking.status === "CONFIRMED" && (
                   <button
-                    onClick={() => handleReject(booking.id)}
-                    style={{ marginLeft: "10px" }}
+                    style={{ background: "#2563eb", color: "white" }}
+                    onClick={() => handleStartWork(booking.id)}
                   >
-                    Reject
+                    Start Work
                   </button>
-                </div>
-              )}
+                )}
+
+                {booking.status === "ONGOING" && (
+                  <button
+                    style={{ background: "#16a34a", color: "white" }}
+                    onClick={() => handleEndWork(booking.id)}
+                  >
+                    End Work
+                  </button>
+                )}
+              </div>
+
             </div>
           );
         })}
@@ -202,6 +221,8 @@ const StatusBadge = ({ status }) => {
         return "#6b7280";
       case "CONFIRMED":
         return "#2563eb";
+      case "ONGOING":
+        return "#f59e0b";
       case "COMPLETED":
         return "#16a34a";
       case "CANCELLED":
