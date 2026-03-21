@@ -15,7 +15,8 @@ const SERVICES = [
 function ProviderPricing() {
   const [pricing, setPricing] = useState({});
   const [saving, setSaving] = useState({});
-
+const user = JSON.parse(localStorage.getItem("user"));
+const city = user?.city;
   /* =========================
      LOAD EXISTING PRICING
   ========================== */
@@ -55,7 +56,8 @@ function ProviderPricing() {
       await api.post("/api/provider/pricing", {
         service,
         pricingType,        // ✅ ENUM MATCHES BACKEND
-        price: Number(price)
+        price: Number(price),
+        city
       });
 
       alert("Pricing saved successfully");

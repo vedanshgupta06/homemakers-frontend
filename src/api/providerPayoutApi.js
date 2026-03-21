@@ -52,10 +52,14 @@ export const getMyPayouts = () => {
   return axios.get("/api/provider/payouts");
 };
 
-// export const requestPayout = () => {
-//   return axios.post("/api/provider/payouts/request");
-// };
+export const requestPayout = () => {
+  return axios.post("/api/provider/payouts/request");
+};
 
+export const getWalletSummary = () => {
+  return axios.get("/api/provider/wallet/summary");
+};
 
-export const requestPayout = () =>
-  api.post("/api/provider/payout/request");
+export const getWithdrawalHistory = () => {
+  return axios.get("/api/provider/wallet/withdrawals");
+};

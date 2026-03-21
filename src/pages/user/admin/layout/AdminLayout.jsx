@@ -3,13 +3,16 @@ import { Link, Outlet, useLocation } from "react-router-dom";
 const AdminLayout = () => {
   const location = useLocation();
 
-  const menu = [
-    { name: "Dashboard", path: "/admin" },
-    { name: "Providers", path: "/admin/providers" },
-    { name: "Bookings", path: "/admin/bookings" },
-    { name: "Payouts", path: "/admin/payouts" },
-    { name: "Reports", path: "/admin/reports" },
-  ];
+ const menu = [
+  { name: "Dashboard", path: "/admin" },
+  { name: "Providers", path: "/admin/providers" },
+  { name: "Bookings", path: "/admin/bookings" },
+
+  { name: "Payout Requests", path: "/admin/payouts/requests" },
+  { name: "Payout History", path: "/admin/payouts/history" },
+
+  { name: "Reports", path: "/admin/reports" },
+];
 
   return (
     <div style={{ display: "flex", minHeight: "100vh" }}>

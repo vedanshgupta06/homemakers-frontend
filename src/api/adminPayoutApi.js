@@ -1,15 +1,10 @@
 import api from "./axios";
 
-/* ================================
-   ADMIN WEEKLY PAYOUTS (ACTIVE)
-   ================================ */
+export const getPayoutRequests = () =>
+  api.get("/api/admin/payouts/requests");
 
-// Get requested weekly payouts
-export const getRequestedWeeklyPayouts = () =>
-  api.get("/api/admin/weekly-payouts/requested");
+export const getPayoutHistory = () =>
+  api.get("/api/admin/payouts/history");
 
-// Mark weekly payout as PAID
-export const payWeeklyPayout = (payoutTransactionId, referenceId) =>
-  api.put(`/api/admin/weekly-payouts/${payoutTransactionId}/pay`, null, {
-    params: { referenceId },
-  });
+export const markPayoutPaid = (id) =>
+  api.put(`/api/admin/payouts/${id}/mark-paid`);

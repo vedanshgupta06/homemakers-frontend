@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import api from "../../../../api/axios";
 
 function ProviderDetails() {
+
   const { providerId } = useParams();
 
   const [provider, setProvider] = useState(null);
@@ -17,23 +18,27 @@ function ProviderDetails() {
   /* ===============================
      LOAD PROVIDER
   =============================== */
+
   useEffect(() => {
+
     api
       .get(`/api/providers/${providerId}`)
       .then((res) => setProvider(res.data))
       .catch(() => setError("Failed to load provider"));
+
   }, [providerId]);
 
   /* ===============================
      LOAD AVAILABILITY
   =============================== */
+
   const loadAvailability = () => {
+
     api
       .get(`/api/provider/availability/${providerId}`)
-      .then((res) => {
-        setSlots(res.data.filter((s) => s.active));
-      })
+      .then((res) => setSlots(res.data.filter((s) => s.active)))
       .catch(() => setError("Failed to load availability"));
+
   };
 
   useEffect(() => {
@@ -43,49 +48,56 @@ function ProviderDetails() {
   /* ===============================
      SERVICE SELECTION
   =============================== */
+
   const toggleService = (service) => {
+
     setSelectedServices((prev) =>
       prev.includes(service)
         ? prev.filter((s) => s !== service)
         : [...prev, service]
     );
+
   };
 
   /* ===============================
      PRICE PREVIEW
   =============================== */
+
   useEffect(() => {
-  if (selectedServices.length === 0) {
-    setPricePreview(null);
-    return;
-  }
 
-  // ⛔ If hours required but not provided → don't call API
-  const requiresHours = provider?.pricing?.some(
-    p =>
-      selectedServices.includes(p.service) &&
-      p.pricingType === "HOURLY_MONTHLY"
-  );
+    if (!provider) return;
 
-  if (requiresHours && (!hoursPerDay || Number(hoursPerDay) <= 0)) {
-    setPricePreview(null);
-    return;
-  }
+    if (selectedServices.length === 0) {
+      setPricePreview(null);
+      return;
+    }
 
-  api.post("/api/bookings/preview", {
-    providerId: Number(providerId),
-    services: selectedServices,
-    hoursPerDay: hoursPerDay ? Number(hoursPerDay) : null
-  })
-    .then(res => setPricePreview(res.data))
-    .catch(() => setPricePreview(null));
+    const requiresHours = provider?.pricing?.some(
+      (p) =>
+        selectedServices.includes(p.service) &&
+        p.pricingType === "HOURLY_MONTHLY"
+    );
 
-}, [selectedServices, hoursPerDay, providerId, provider]);
+    if (requiresHours && (!hoursPerDay || Number(hoursPerDay) <= 0)) {
+      setPricePreview(null);
+      return;
+    }
 
+    api
+      .post("/api/bookings/preview", {
+        providerId: Number(providerId),
+        services: selectedServices,
+        hoursPerDay: hoursPerDay ? Number(hoursPerDay) : null,
+      })
+      .then((res) => setPricePreview(res.data))
+      .catch(() => setPricePreview(null));
+
+  }, [selectedServices, hoursPerDay, providerId, provider]);
 
   /* ===============================
      PLATFORM FEE LOGIC
   =============================== */
+
   const totalPrice = pricePreview?.totalMonthlyPrice || 0;
 
   const isSubscriptionAllowed = totalPrice >= 5000;
@@ -102,20 +114,22 @@ function ProviderDetails() {
   /* ===============================
      BOOK SLOT
   =============================== */
+
   const bookSlot = async (slotId) => {
+
     if (!pricePreview) {
       alert("Please select services to calculate price");
       return;
     }
 
     try {
+
       setBookingSlotId(slotId);
 
       await api.post("/api/bookings", {
         availabilityId: slotId,
         services: selectedServices,
-        hoursPerDay: hoursPerDay ? Number(hoursPerDay) : null,
-        // ⛔ Payment not sent yet (preview only)
+        hoursPerDay: hoursPerDay ? Number(hoursPerDay) : null
       });
 
       alert("Booking successful");
@@ -124,36 +138,83 @@ function ProviderDetails() {
       setHoursPerDay("");
       setPricePreview(null);
       setSubscription(false);
+
       loadAvailability();
+
     } catch (err) {
+
       alert(err.response?.data?.message || "Booking failed");
+
     } finally {
+
       setBookingSlotId(null);
+
     }
+
   };
 
   /* ===============================
      UI
   =============================== */
+
   return (
+
     <div style={{ padding: 20 }}>
+
       {provider && (
+
+        <div style={{ marginBottom: 20 }}>
+
+          <h2>{provider.user?.name || provider.user?.email}</h2>
+
+          <p><b>City:</b> {provider.city}</p>
+
+          <p><b>Experience:</b> {provider.experienceYears} years</p>
+
+          <p><b>Rating:</b> ⭐ {provider.rating}</p>
+
+          {provider.profilePhotoUrl && (
+            <img
+              src={`http://localhost:8080${provider.profilePhotoUrl}`}
+              alt="provider"
+              width="140"
+              style={{ borderRadius: 10, marginTop: 10 }}
+            />
+          )}
+
+        </div>
+
+      )}
+
+      {/* SERVICE SELECTION */}
+
+      {provider && (
+
         <>
+
           <h3>Select Services</h3>
 
-          {provider.services.map((service) => (
+          {provider.services?.map((service) => (
+
             <label key={service} style={{ display: "block", marginBottom: 6 }}>
+
               <input
                 type="checkbox"
                 checked={selectedServices.includes(service)}
                 onChange={() => toggleService(service)}
-              />{" "}
+              />
+
+              {" "}
               {service.replaceAll("_", " ")}
+
             </label>
+
           ))}
 
           <div style={{ marginTop: 10 }}>
+
             <label>Hours per day:</label>
+
             <input
               type="number"
               min="1"
@@ -161,12 +222,17 @@ function ProviderDetails() {
               onChange={(e) => setHoursPerDay(e.target.value)}
               style={{ marginLeft: 10 }}
             />
+
           </div>
+
         </>
+
       )}
 
       {/* PRICE PREVIEW */}
+
       {pricePreview && (
+
         <div
           style={{
             border: "1px solid #ccc",
@@ -175,9 +241,10 @@ function ProviderDetails() {
             borderRadius: 8,
           }}
         >
+
           <h4>Monthly Price Preview</h4>
 
-          {Object.entries(pricePreview.serviceWisePrice).map(
+          {Object.entries(pricePreview.serviceWisePrice || {}).map(
             ([service, price]) => (
               <div key={service}>
                 {service.replaceAll("_", " ")} : ₹{price}
@@ -187,11 +254,10 @@ function ProviderDetails() {
 
           <hr />
 
-          <p>
-            <b>Service Price:</b> ₹{totalPrice}
-          </p>
+          <p><b>Service Price:</b> ₹{totalPrice}</p>
 
           {/* SUBSCRIPTION */}
+
           <div
             style={{
               marginTop: 12,
@@ -200,47 +266,53 @@ function ProviderDetails() {
               borderRadius: 6,
             }}
           >
+
             <label>
+
               <input
                 type="checkbox"
                 disabled={!isSubscriptionAllowed}
                 checked={subscription}
                 onChange={(e) => setSubscription(e.target.checked)}
-              />{" "}
+              />
+
+              {" "}
               Enable Homemakers Subscription (10%)
+
             </label>
 
             {!isSubscriptionAllowed && (
+
               <p style={{ color: "red", fontSize: 12 }}>
                 Subscription available only for services ₹5000 or above
               </p>
+
             )}
 
-            <ul style={{ fontSize: 12, marginTop: 6 }}>
-              <li>Instant replacement</li>
-              <li>Substitute on leave</li>
-              <li>24×7 support</li>
-            </ul>
           </div>
 
           <hr />
 
-          <p>
-            <b>Platform Fee:</b> ₹{platformFee}
-          </p>
+          <p><b>Platform Fee:</b> ₹{platformFee}</p>
+
           <p style={{ fontSize: 18 }}>
             <b>Total Payable:</b> ₹{finalAmount}
           </p>
 
-          <p style={{ fontSize: 12 }}>Includes 3 paid leaves</p>
         </div>
+
       )}
+
+      {/* AVAILABILITY */}
 
       <h2>Available Slots</h2>
 
       {error && <p style={{ color: "red" }}>{error}</p>}
 
+      {slots.length === 0 && <p>No available slots</p>}
+
       {slots.map((slot) => (
+
         <div
           key={slot.id}
           style={{
@@ -250,9 +322,11 @@ function ProviderDetails() {
             borderRadius: 6,
           }}
         >
+
           <div>
             <b>Date:</b> {slot.date}
           </div>
+
           <div>
             <b>Time:</b> {slot.startTime} - {slot.endTime}
           </div>
@@ -271,10 +345,15 @@ function ProviderDetails() {
           >
             {bookingSlotId === slot.id ? "Booking..." : "Book this slot"}
           </button>
+
         </div>
+
       ))}
+
     </div>
+
   );
+
 }
 
 export default ProviderDetails;

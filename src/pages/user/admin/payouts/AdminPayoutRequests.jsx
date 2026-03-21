@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { getRequestedWeeklyPayouts } from "../../../../api/adminPayoutApi";
+import {
+  getPayoutRequests,
+  markPayoutPaid
+} from "../../../../api/adminPayoutApi";
 
 const AdminPayouts = () => {
+
   const [payouts, setPayouts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
 
   useEffect(() => {
     loadPayouts();
@@ -13,106 +15,201 @@ const AdminPayouts = () => {
 
   const loadPayouts = async () => {
     try {
-      const res = await getRequestedWeeklyPayouts();
+      const res = await getPayoutRequests();
       setPayouts(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
-      console.error("Error loading weekly payouts", err);
-      setPayouts([]);
+      console.error("Error loading payouts", err);
     } finally {
       setLoading(false);
     }
   };
 
-  const totalAmount = payouts.reduce((sum, p) => sum + p.amount, 0);
+  const approvePayout = async (id) => {
+
+    const confirm = window.confirm("Approve and mark payout as PAID?");
+
+    if (!confirm) return;
+
+    try {
+
+      await markPayoutPaid(id);
+
+      alert("Payout marked as paid");
+
+      loadPayouts();
+
+    } catch (err) {
+
+      console.error(err);
+
+      alert("Failed to mark payout");
+
+    }
+  };
+
+  const totalAmount = payouts.reduce((sum, p) => sum + (p.amount || 0), 0);
 
   return (
     <div style={{ padding: "30px" }}>
+
       <h2 style={{ marginBottom: "25px" }}>
-        Admin – Weekly Payout Requests
+        Admin – Provider Payouts
       </h2>
 
-      {/* ===== SUMMARY CARDS ===== */}
+      {/* SUMMARY */}
       <div style={summaryGrid}>
+
         <SummaryCard
           title="Total Requested"
           value={`₹${totalAmount}`}
         />
+
         <SummaryCard
           title="Pending Requests"
-          value={payouts.length}
+          value={payouts.filter(p => p.status === "REQUESTED").length}
         />
+
       </div>
 
-      {/* ===== TABLE ===== */}
+      {/* TABLE */}
+
       {loading ? (
+
         <p>Loading payouts...</p>
+
       ) : payouts.length === 0 ? (
+
         <EmptyState />
+
       ) : (
+
         <div style={tableCard}>
+
           <table style={tableStyle}>
+
             <thead>
+
               <tr>
                 <th>ID</th>
                 <th>Provider</th>
+                <th>Service</th>
                 <th>Booking</th>
                 <th>Week</th>
                 <th>Amount</th>
+                <th>Created</th>
                 <th>Status</th>
                 <th>Action</th>
               </tr>
+
             </thead>
 
             <tbody>
+
               {payouts.map((p) => (
+
                 <tr key={p.id}>
+
                   <td>{p.id}</td>
-                  <td>{p.provider?.id}</td>
-                  <td>{p.booking?.id}</td>
+
+                  {/* Provider */}
+                  <td>
+                    <div style={{ fontWeight: "600" }}>
+                      {p.providerName}
+                    </div>
+                    <div style={{ fontSize: "12px", color: "#6b7280" }}>
+                      {p.providerEmail}
+                    </div>
+                  </td>
+
+                  {/* Service */}
+                  <td>{p.serviceName}</td>
+
+                  {/* Booking */}
+                  <td>#{p.bookingId}</td>
+
+                  {/* Week */}
                   <td>Week {p.weekNo}</td>
-                  <td>₹{p.amount}</td>
+
+                  {/* Amount */}
+                  <td style={{ fontWeight: "600" }}>
+                    ₹{p.amount}
+                  </td>
+
+                  {/* Created Date */}
+                  <td>
+                    {new Date(p.createdAt).toLocaleDateString()}
+                  </td>
+
+                  {/* Status */}
                   <td>
                     <StatusBadge status={p.status} />
                   </td>
+
+                  {/* Approve Button */}
                   <td>
-                    {p.status === "REQUESTED" && (
+
+                    {p.status === "INITIATED" && (
+
                       <button
                         style={payButton}
-                        onClick={() =>
-                          navigate(`/admin/payouts/${p.id}/pay`)
-                        }
+                        onClick={() => approvePayout(p.id)}
                       >
-                        Approve & Pay
+                        Approve
                       </button>
+
                     )}
+
                   </td>
+
                 </tr>
+
               ))}
+
             </tbody>
+
           </table>
+
         </div>
+
       )}
+
     </div>
   );
+
 };
 
-/* ================= COMPONENTS ================= */
+
+/* COMPONENTS */
 
 const SummaryCard = ({ title, value }) => (
+
   <div style={summaryCard}>
-    <p style={{ color: "#6b7280", fontSize: "14px" }}>{title}</p>
-    <h2 style={{ marginTop: "10px" }}>{value}</h2>
+
+    <p style={{ color: "#6b7280", fontSize: "14px" }}>
+      {title}
+    </p>
+
+    <h2 style={{ marginTop: "10px" }}>
+      {value}
+    </h2>
+
   </div>
+
 );
 
+
 const StatusBadge = ({ status }) => {
+
   const colors = {
+
     REQUESTED: "#f59e0b",
     PAID: "#16a34a",
     REJECTED: "#dc2626",
+
   };
 
   return (
+
     <span
       style={{
         background: colors[status] || "#6b7280",
@@ -125,17 +222,26 @@ const StatusBadge = ({ status }) => {
     >
       {status}
     </span>
+
   );
+
 };
 
+
 const EmptyState = () => (
+
   <div style={emptyCard}>
+
     <h3>No pending payouts 🎉</h3>
+
     <p>All provider payouts are processed.</p>
+
   </div>
+
 );
 
-/* ================= STYLES ================= */
+
+/* STYLES */
 
 const summaryGrid = {
   display: "grid",

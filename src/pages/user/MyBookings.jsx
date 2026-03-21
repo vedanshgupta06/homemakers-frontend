@@ -13,7 +13,7 @@ function MyBookings() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    api.get("/api/bookings/my")
+    api.get("/api/bookings/user")
       .then(res => {
         setBookings(res.data);
         setError("");

@@ -7,12 +7,12 @@ export const getProviderBookings = () => {
 
 // ACCEPT booking
 export const acceptBooking = (bookingId) => {
-  return api.put(`/api/bookings/provider/${bookingId}/accept`);
+  return api.put(`/api/bookings/${bookingId}/accept`);
 };
 
 // REJECT booking
 export const rejectBooking = (bookingId) => {
-  return api.put(`/api/bookings/provider/${bookingId}/reject`);
+  return api.put(`/api/bookings/${bookingId}/reject`);
 };
 
 // COMPLETE booking

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getEarningsSummary } from "../../api/providerEarningsApi";
+import ProviderAttendance from "../../pages/provider/ProviderAttendance";
 import {
   LineChart,
   Line,
@@ -97,14 +98,23 @@ const ProviderDashboard = () => {
           </LineChart>
         </ResponsiveContainer>
       </div>
-
-      <h3 style={{ marginTop: "40px" }}>Work Management</h3>
+      <h3 style={{ marginTop: "40px" }}>Provider Setup</h3>
 
       <div style={cardGrid}>
-        <DashboardCard title="My Bookings" to="/provider/bookings" />
-        <DashboardCard title="Availability" to="/provider/availability" />
-        <DashboardCard title="Pricing" to="/provider/pricing" />
+        <DashboardCard title="Complete Profile" to="/provider/setup-profile" />
+        <DashboardCard title="Upload Photo" to="/provider/photo" />
+        <DashboardCard title="Upload Documents" to="/provider/documents" />
       </div>
+
+      
+      <h3 style={{ marginTop: "40px" }}>Work Management</h3>
+
+     <div style={cardGrid}>
+      <DashboardCard title="My Bookings" to="/provider/bookings" />
+      <DashboardCard title="Availability" to="/provider/availability" />
+      <DashboardCard title="Pricing" to="/provider/pricing" />
+      <DashboardCard title="Attendance" to="/provider/attendance" />
+    </div>
 
       <h3 style={{ marginTop: "40px" }}>Account & Reports</h3>
 

@@ -17,3 +17,5 @@ export const getEarningsSummary = () => {
 import api from "./axios";
 export const getProviderEarnings = () =>
   api.get("/api/provider/earnings/list");
+export const getEarningsStats = () =>
+  axios.get("/provider/earnings/stats");
