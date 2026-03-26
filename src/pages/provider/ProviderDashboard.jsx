@@ -1,17 +1,16 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { getEarningsSummary } from "../../api/providerEarningsApi";
-import ProviderAttendance from "../../pages/provider/ProviderAttendance";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
+
+import Container from "../../components/ui/Container";
+import Card from "../../components/ui/Card";
+import Button from "../../components/ui/Button";
 
 const ProviderDashboard = () => {
+  const navigate = useNavigate();
+
+  const user = JSON.parse(localStorage.getItem("user"));
+
   const [summary, setSummary] = useState({
     pending: 0,
     paid: 0,
@@ -34,7 +33,7 @@ const ProviderDashboard = () => {
       setSummary(res.data);
       animateNumbers(res.data);
     } catch (err) {
-      console.error("Failed to load summary", err);
+      console.error(err);
     }
   };
 
@@ -46,6 +45,7 @@ const ProviderDashboard = () => {
 
     const interval = setInterval(() => {
       start++;
+
       setDisplayed({
         pending: Math.floor((data.pending / steps) * start),
         paid: Math.floor((data.paid / steps) * start),
@@ -59,140 +59,136 @@ const ProviderDashboard = () => {
     }, increment);
   };
 
-  const chartData = [
-    { name: "Available", amount: summary.pending },
-    { name: "Paid", amount: summary.paid },
-  ];
+  const formatCurrency = (val) =>
+    `₹ ${Number(val || 0).toFixed(2)}`;
 
   return (
-    <div style={{ padding: "30px" }}>
-      <h2 style={{ marginBottom: "25px" }}>Provider Dashboard</h2>
+    <Container>
+      <div className="space-y-10 animate-fadeIn">
 
-      <h3>Wallet Overview</h3>
+        {/* 🔥 HEADER */}
+        <div className="relative">
 
-      <div style={walletGrid}>
-        <WalletCard title="Available Balance" value={`₹${displayed.pending}`} color="#2563eb" />
-        <WalletCard title="Total Paid" value={`₹${displayed.paid}`} color="#16a34a" />
-        <WalletCard title="Total Earnings" value={`₹${displayed.total}`} color="#111827" />
+          <div className="
+            absolute -top-20 -left-10 w-80 h-80 
+            bg-pink-400/20 blur-3xl rounded-full
+          "></div>
+
+          <div className="relative flex flex-col md:flex-row md:items-center md:justify-between">
+
+            <div>
+              <h2 className="
+                text-3xl font-bold 
+                bg-brand-gradient bg-clip-text text-transparent
+              ">
+                Welcome back, {user?.name || "Provider"}
+              </h2>
+
+              <p className="text-textSub mt-2">
+                Manage your work and earnings
+              </p>
+            </div>
+
+            <Button onClick={() => navigate("/provider/pricing")}>
+              Set Pricing
+            </Button>
+
+          </div>
+        </div>
+
+        {/* 💳 STATS */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+
+          <StatCard
+            title="Available Balance"
+            value={formatCurrency(displayed.pending)}
+          />
+
+          <StatCard
+            title="Total Paid"
+            value={formatCurrency(displayed.paid)}
+          />
+
+          <StatCard
+            title="Total Earnings"
+            value={formatCurrency(displayed.total)}
+          />
+
+        </div>
+
+        {/* ⚡ ACTIONS */}
+        <Card>
+          <h3 className="font-semibold mb-5">Quick Actions</h3>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-5">
+
+            <ActionCard title="Bookings" onClick={() => navigate("/provider/bookings")} />
+            <ActionCard title="Availability" onClick={() => navigate("/provider/availability")} />
+            <ActionCard title="Attendance" onClick={() => navigate("/provider/attendance")} />
+            <ActionCard title="Withdrawals" onClick={() => navigate("/provider/payouts")} />
+            <ActionCard title="Deductions" onClick={() => navigate("/provider/deductions")} />
+            <ActionCard title="Set Pricing" onClick={() => navigate("/provider/pricing")} />
+
+          </div>
+        </Card>
+
+        {/* 📝 ACTIVITY */}
+        <Card>
+          <h3 className="font-semibold mb-2">Recent Activity</h3>
+
+          <p className="text-gray-400 text-sm">
+            You don’t have any activity yet — your updates will appear here.
+          </p>
+        </Card>
+
       </div>
-
-      <div style={{ marginTop: "15px", marginBottom: "40px" }}>
-        <Link to="/provider/earnings">
-          <button style={primaryBtn}>View Earnings History</button>
-        </Link>
-
-        <Link to="/provider/payouts" style={{ marginLeft: "15px" }}>
-          <button style={secondaryBtn}>Request Withdrawal</button>
-        </Link>
-      </div>
-
-      <h3>Wallet Distribution</h3>
-
-      <div style={chartContainer}>
-        <ResponsiveContainer width="100%" height={250}>
-          <LineChart data={chartData}>
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip />
-            <Line type="monotone" dataKey="amount" stroke="#2563eb" />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
-      <h3 style={{ marginTop: "40px" }}>Provider Setup</h3>
-
-      <div style={cardGrid}>
-        <DashboardCard title="Complete Profile" to="/provider/setup-profile" />
-        <DashboardCard title="Upload Photo" to="/provider/photo" />
-        <DashboardCard title="Upload Documents" to="/provider/documents" />
-      </div>
-
-      
-      <h3 style={{ marginTop: "40px" }}>Work Management</h3>
-
-     <div style={cardGrid}>
-      <DashboardCard title="My Bookings" to="/provider/bookings" />
-      <DashboardCard title="Availability" to="/provider/availability" />
-      <DashboardCard title="Pricing" to="/provider/pricing" />
-      <DashboardCard title="Attendance" to="/provider/attendance" />
-    </div>
-
-      <h3 style={{ marginTop: "40px" }}>Account & Reports</h3>
-
-      <div style={cardGrid}>
-        <DashboardCard title="Withdrawals" to="/provider/payouts" />
-        <DashboardCard title="Deductions" to="/provider/deductions" />
-        <DashboardCard title="Profile" to="/provider/profile" />
-      </div>
-    </div>
+    </Container>
   );
 };
 
-const WalletCard = ({ title, value, color }) => (
-  <div style={{
-    background: "#ffffff",
-    padding: "20px",
-    borderRadius: "12px",
-    border: "1px solid #e5e7eb",
-    boxShadow: "0 4px 10px rgba(0,0,0,0.05)",
-  }}>
-    <p style={{ color: "#6b7280", fontSize: "14px" }}>{title}</p>
-    <h2 style={{ marginTop: "10px", color }}>{value}</h2>
-  </div>
+/* 🔥 STAT CARD (CLEAN) */
+const StatCard = ({ title, value }) => (
+  <Card className="
+    p-5 bg-brand-gradient text-white 
+    shadow-glow
+    hover:scale-[1.02] hover:shadow-xl
+    transition-all duration-300
+  ">
+    <p className="text-sm opacity-80">{title}</p>
+
+    <p className="text-2xl font-bold mt-2 tracking-tight">
+      {value}
+    </p>
+  </Card>
 );
 
-const DashboardCard = ({ title, to }) => (
-  <Link to={to} style={{ textDecoration: "none", color: "inherit" }}>
-    <div style={{
-      border: "1px solid #e5e7eb",
-      borderRadius: "12px",
-      padding: "20px",
-      background: "#ffffff",
-      cursor: "pointer",
-      boxShadow: "0 4px 10px rgba(0,0,0,0.05)",
-    }}>
-      <h4>{title}</h4>
-    </div>
-  </Link>
+/* 🔥 ACTION CARD (NO ICON, PREMIUM FEEL) */
+const ActionCard = ({ title, onClick }) => (
+  <Card
+    onClick={onClick}
+    className="
+      group cursor-pointer p-5
+      border border-gray-200
+      hover:border-purple-300
+      hover:shadow-xl hover:scale-[1.04]
+      transition-all duration-300
+    "
+  >
+    <p className="
+      text-sm font-medium text-textMain
+      group-hover:text-purple-600 transition
+    ">
+      {title}
+    </p>
+
+    {/* subtle accent line */}
+    <div className="
+      mt-3 h-[2px] w-0 
+      bg-brand-gradient
+      group-hover:w-full
+      transition-all duration-300
+    " />
+  </Card>
 );
-
-const walletGrid = {
-  display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
-  gap: "20px",
-  marginTop: "15px",
-};
-
-const cardGrid = {
-  display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-  gap: "20px",
-  marginTop: "15px",
-};
-
-const chartContainer = {
-  background: "#ffffff",
-  padding: "20px",
-  borderRadius: "12px",
-  border: "1px solid #e5e7eb",
-  marginTop: "15px",
-};
-
-const primaryBtn = {
-  padding: "10px 18px",
-  background: "#2563eb",
-  color: "#ffffff",
-  border: "none",
-  borderRadius: "8px",
-  cursor: "pointer",
-};
-
-const secondaryBtn = {
-  padding: "10px 18px",
-  background: "#16a34a",
-  color: "#ffffff",
-  border: "none",
-  borderRadius: "8px",
-  cursor: "pointer",
-};
 
 export default ProviderDashboard;

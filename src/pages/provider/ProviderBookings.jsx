@@ -1,253 +1,3 @@
-// import { useEffect, useState } from "react";
-// import api from "../../api/axios";
-// import {
-//   getProviderBookings,
-//   acceptBooking,
-//   rejectBooking,
-// } from "../../api/providerBookingApi";
-
-// /* ============================= */
-// /* HOURLY SERVICES LIST */
-// /* ============================= */
-// const HOURLY_SERVICES = [
-//   "BABYSITTING",
-//   "ELDER_CARE",
-//   "COOKING"
-// ];
-
-// export default function ProviderBookings() {
-//   const [bookings, setBookings] = useState([]);
-//   const [loading, setLoading] = useState(true);
-
-//   useEffect(() => {
-//     loadBookings();
-//   }, []);
-
-//   const loadBookings = async () => {
-//     try {
-//       const res = await getProviderBookings();
-//       setBookings(res.data || []);
-//     } catch (err) {
-//       console.error("Failed to load bookings", err);
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   const handleAccept = async (bookingId) => {
-//     await acceptBooking(bookingId);
-//     loadBookings();
-//   };
-
-//   const handleReject = async (bookingId) => {
-//     await rejectBooking(bookingId);
-//     loadBookings();
-//   };
-
-//   /* ============================= */
-//   /* START WORK */
-//   /* ============================= */
-//   const handleStartWork = async (bookingId) => {
-//     try {
-//       await api.put(`/api/bookings/${bookingId}/start`);
-//       loadBookings();
-//     } catch (err) {
-//       alert("Failed to start work");
-//     }
-//   };
-
-//   /* ============================= */
-//   /* END WORK */
-//   /* ============================= */
-//   const handleEndWork = async (bookingId) => {
-//     try {
-//       await api.put(`/api/bookings/${bookingId}/end`);
-//       loadBookings();
-//     } catch (err) {
-//       alert("Failed to end work");
-//     }
-//   };
-
-//   if (loading) return <p>Loading bookings...</p>;
-//   if (bookings.length === 0) return <p>No bookings available</p>;
-
-//   return (
-//     <div style={{ padding: "20px" }}>
-//       <h2>My Bookings</h2>
-
-//       <div style={{ marginTop: "20px" }}>
-//         {bookings.map((booking) => {
-
-//           const hasHourlyService = booking.services?.some(service =>
-//             HOURLY_SERVICES.includes(service)
-//           );
-
-//           const calculatedHours =
-//             booking.hoursPerDay ??
-//             (
-//               booking.availability?.startTime &&
-//               booking.availability?.endTime
-//                 ? (
-//                     (new Date(`1970-01-01T${booking.availability.endTime}`) -
-//                      new Date(`1970-01-01T${booking.availability.startTime}`))
-//                     / (1000 * 60 * 60)
-//                   )
-//                 : null
-//             );
-
-//           return (
-//             <div
-//               key={booking.id}
-//               style={{
-//                 border: "1px solid #e5e7eb",
-//                 borderRadius: "12px",
-//                 padding: "20px",
-//                 marginBottom: "20px",
-//                 background: "#ffffff",
-//                 boxShadow: "0 4px 10px rgba(0,0,0,0.05)"
-//               }}
-//             >
-//               <div style={{ display: "flex", justifyContent: "space-between" }}>
-//                 <h4>Service Date</h4>
-//                 <StatusBadge status={booking.status} />
-//               </div>
-
-//               <p><strong>{booking.availability?.date}</strong></p>
-//               <p>
-//                 {booking.availability?.startTime} - {booking.availability?.endTime}
-//               </p>
-
-//               <p>
-//                 <strong>Customer:</strong>{" "}
-//                 {booking.user?.name || booking.user?.email || "N/A"}
-//               </p>
-
-//               {/* SERVICES */}
-//               {booking.services?.length > 0 && (
-//                 <>
-//                   <hr style={{ margin: "15px 0" }} />
-//                   <p><strong>Selected Services</strong></p>
-
-//                   <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-//                     {booking.services.map((service, index) => (
-//                       <span
-//                         key={index}
-//                         style={{
-//                           background: "#f3f4f6",
-//                           padding: "6px 12px",
-//                           borderRadius: "20px",
-//                           fontSize: "13px"
-//                         }}
-//                       >
-//                         {service}
-//                       </span>
-//                     ))}
-//                   </div>
-//                 </>
-//               )}
-
-//               {/* HOURS */}
-//               {hasHourlyService && calculatedHours && (
-//                 <p style={{ marginTop: "15px" }}>
-//                   <strong>Daily Hours:</strong> {calculatedHours} hrs
-//                 </p>
-//               )}
-
-//               {/* WORK INFO */}
-//               {booking.workStartDate && (
-//                 <>
-//                   <hr style={{ margin: "15px 0" }} />
-//                   <p><strong>Work Start:</strong> {booking.workStartDate}</p>
-//                   <p>
-//                     <strong>Work End:</strong>{" "}
-//                     {booking.workEndDate || "Ongoing"}
-//                   </p>
-//                   <p><strong>Total Days:</strong> {booking.totalDays}</p>
-//                   <p><strong>Chargeable Days:</strong> {booking.chargeableDays}</p>
-//                   <p><strong>Holidays:</strong> {booking.holidays}</p>
-//                 </>
-//               )}
-
-//               {/* ============================= */}
-//               {/* ACTION BUTTONS */}
-//               {/* ============================= */}
-//               <div style={{ marginTop: "15px", display: "flex", gap: "10px" }}>
-                
-//                 {booking.status === "PENDING" && (
-//                   <>
-//                     <button onClick={() => handleAccept(booking.id)}>
-//                       Accept
-//                     </button>
-//                     <button onClick={() => handleReject(booking.id)}>
-//                       Reject
-//                     </button>
-//                   </>
-//                 )}
-
-//                 {booking.status === "CONFIRMED" && (
-//                   <button
-//                     style={{ background: "#2563eb", color: "white" }}
-//                     onClick={() => handleStartWork(booking.id)}
-//                   >
-//                     Start Work
-//                   </button>
-//                 )}
-
-//                 {booking.status === "ONGOING" && (
-//                   <button
-//                     style={{ background: "#16a34a", color: "white" }}
-//                     onClick={() => handleEndWork(booking.id)}
-//                   >
-//                     End Work
-//                   </button>
-//                 )}
-//               </div>
-
-//             </div>
-//           );
-//         })}
-//       </div>
-//     </div>
-//   );
-// }
-
-// /* ============================= */
-// /* STATUS BADGE */
-// /* ============================= */
-// const StatusBadge = ({ status }) => {
-//   const getColor = () => {
-//     switch (status) {
-//       case "PENDING":
-//         return "#6b7280";
-//       case "CONFIRMED":
-//         return "#2563eb";
-//       case "ONGOING":
-//         return "#f59e0b";
-//       case "COMPLETED":
-//         return "#16a34a";
-//       case "CANCELLED":
-//         return "#dc2626";
-//       default:
-//         return "#6b7280";
-//     }
-//   };
-
-//   return (
-//     <span
-//       style={{
-//         padding: "6px 12px",
-//         borderRadius: "20px",
-//         fontSize: "13px",
-//         fontWeight: "bold",
-//         background: getColor(),
-//         color: "white",
-//       }}
-//     >
-//       {status}
-//     </span>
-//   );
-// };
-
 import { useEffect, useState } from "react";
 import api from "../../api/axios";
 import {
@@ -256,11 +6,16 @@ import {
   rejectBooking,
 } from "../../api/providerBookingApi";
 
+import Container from "../../components/ui/Container";
+import Card from "../../components/ui/Card";
+import Button from "../../components/ui/Button";
+
 const HOURLY_SERVICES = ["BABYSITTING", "ELDER_CARE", "COOKING"];
 
 export default function ProviderBookings() {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState("ALL");
 
   useEffect(() => {
     loadBookings();
@@ -275,6 +30,12 @@ export default function ProviderBookings() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const normalizeStatus = (status) => {
+    const s = (status || "").toUpperCase().trim();
+    if (s === "ONGOING") return "SERVICE_IN_PROGRESS";
+    return s;
   };
 
   const handleAccept = async (id) => {
@@ -308,157 +69,244 @@ export default function ProviderBookings() {
     }
   };
 
-  if (loading) return <p>Loading bookings...</p>;
-  if (!bookings.length) return <p>No bookings available</p>;
+  const filters = [
+    { label: "All", value: "ALL" },
+    { label: "Pending", value: "PENDING" },
+    { label: "Confirmed", value: "CONFIRMED" },
+    { label: "In Progress", value: "SERVICE_IN_PROGRESS" },
+    { label: "Completed", value: "COMPLETED" },
+    { label: "Cancelled", value: "CANCELLED" },
+  ];
+
+  const filteredBookings =
+    filter === "ALL"
+      ? bookings
+      : bookings.filter(
+          (b) =>
+            normalizeStatus(b.status) === normalizeStatus(filter)
+        );
+
+  if (loading) {
+    return (
+      <Container>
+        <div className="max-w-5xl mx-auto py-10">
+          <p className="text-gray-500">Loading bookings...</p>
+        </div>
+      </Container>
+    );
+  }
+
+  if (!bookings.length) {
+    return (
+      <Container>
+        <div className="max-w-5xl mx-auto py-10">
+          <p className="text-gray-500">No bookings available</p>
+        </div>
+      </Container>
+    );
+  }
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h2>My Bookings</h2>
+    <Container>
+      <div className="max-w-5xl mx-auto space-y-8 animate-fadeIn">
 
-      {bookings.map((booking) => {
-        const hasHourlyService = booking.services?.some((s) =>
-          HOURLY_SERVICES.includes(s)
-        );
+        {/* 🔥 HEADER (FIXED LAYERING) */}
+        <div className="relative">
+          <div className="
+            absolute -top-16 -left-10 w-72 h-72 
+            bg-pink-400/20 blur-3xl rounded-full
+            pointer-events-none z-0
+          "></div>
 
-        const hours =
-          booking.startTime && booking.endTime
-            ? (
-                (new Date(`1970-01-01T${booking.endTime}`) -
-                  new Date(`1970-01-01T${booking.startTime}`)) /
-                (1000 * 60 * 60)
-              ).toFixed(1)
-            : null;
+          <div className="relative z-10">
+            <h2 className="
+              text-3xl font-bold 
+              bg-brand-gradient bg-clip-text text-transparent
+            ">
+              My Bookings 📋
+            </h2>
 
-        return (
-          <div
-            key={booking.bookingId}
-            style={{
-              border: "1px solid #e5e7eb",
-              borderRadius: "12px",
-              padding: "20px",
-              marginBottom: "20px",
-              background: "#fff",
-              boxShadow: "0 4px 10px rgba(0,0,0,0.05)",
-            }}
-          >
-            {/* HEADER */}
-            <div style={{ display: "flex", justifyContent: "space-between" }}>
-              <h4>Service Date</h4>
-              <StatusBadge status={booking.status} />
-            </div>
-
-            {/* DATE */}
-            <p><strong>{booking.serviceDate || "-"}</strong></p>
-
-            {/* TIME */}
-            <p>
-              {booking.startTime || "--"} -{" "}
-              {booking.endTime || "Ongoing"}
+            <p className="text-textSub mt-2">
+              Manage your assigned work and services
             </p>
-
-            {/* CUSTOMER */}
-            <p>
-              <strong>Customer:</strong>{" "}
-              {booking.customerName || "N/A"}
-            </p>
-
-            {/* SERVICES */}
-            <hr />
-            <p><strong>Services</strong></p>
-
-            {booking.services?.length ? (
-              <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-                {booking.services.map((service, i) => (
-                  <span
-                    key={i}
-                    style={{
-                      background: "#f3f4f6",
-                      padding: "6px 12px",
-                      borderRadius: "20px",
-                      fontSize: "13px",
-                    }}
-                  >
-                    {service}
-                  </span>
-                ))}
-              </div>
-            ) : (
-              <p>No services</p>
-            )}
-
-            {/* HOURS */}
-            {hasHourlyService && hours && (
-              <p style={{ marginTop: "10px" }}>
-                <strong>Daily Hours:</strong> {hours} hrs
-              </p>
-            )}
-
-            {/* WORK INFO */}
-            <hr />
-            <p><strong>Total Days:</strong> {booking.totalDays}</p>
-            <p><strong>Chargeable Days:</strong> {booking.chargeableDays}</p>
-            <p><strong>Holidays:</strong> {booking.holidays}</p>
-
-            {/* ACTIONS */}
-            <div style={{ marginTop: "15px", display: "flex", gap: "10px" }}>
-              {booking.status === "PENDING" && (
-                <>
-                  <button onClick={() => handleAccept(booking.bookingId)}>
-                    Accept
-                  </button>
-                  <button onClick={() => handleReject(booking.bookingId)}>
-                    Reject
-                  </button>
-                </>
-              )}
-
-              {booking.status === "CONFIRMED" && (
-                <button
-                  style={{ background: "#2563eb", color: "white" }}
-                  onClick={() => handleStartWork(booking.bookingId)}
-                >
-                  Start Work
-                </button>
-              )}
-
-              {booking.status === "SERVICE_IN_PROGRESS" && (
-                <button
-                  style={{ background: "#dc2626", color: "white" }}
-                  onClick={() => handleTerminate(booking.bookingId)}
-                >
-                  Terminate
-                </button>
-              )}
-            </div>
           </div>
-        );
-      })}
-    </div>
+        </div>
+
+        {/* 🔥 FILTERS (CLICK FIXED) */}
+        <div className="relative z-20 flex flex-wrap gap-3">
+          {filters.map((f) => (
+            <button
+              key={f.value}
+              onClick={() => setFilter(f.value)}
+              className={`
+                px-4 py-1.5 rounded-full text-sm font-medium
+                border transition-all duration-300
+
+                ${
+                  filter === f.value
+                    ? "bg-brand-gradient text-white border-transparent shadow-glow"
+                    : "bg-white text-gray-600 border-gray-200 hover:border-purple-300"
+                }
+              `}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
+
+        {/* 📋 BOOKINGS */}
+        {filteredBookings.map((booking) => {
+          const hasHourlyService = booking.services?.some((s) =>
+            HOURLY_SERVICES.includes(s)
+          );
+
+          const hours =
+            booking.startTime && booking.endTime
+              ? (
+                  (new Date(`1970-01-01T${booking.endTime}`) -
+                    new Date(`1970-01-01T${booking.startTime}`)) /
+                  (1000 * 60 * 60)
+                ).toFixed(1)
+              : null;
+
+          return (
+            <Card
+              key={booking.bookingId}
+              className="
+                p-6
+                bg-white/80 backdrop-blur-md
+                border border-gray-200
+                rounded-2xl
+                hover:shadow-xl hover:scale-[1.01]
+                transition-all duration-300
+              "
+            >
+              {/* HEADER */}
+              <div className="flex justify-between items-center mb-3">
+                <p className="text-sm text-gray-500">Service Date</p>
+                <StatusBadge status={booking.status} />
+              </div>
+
+              <h3 className="font-semibold text-lg">
+                {booking.serviceDate || "-"}
+              </h3>
+
+              <p className="text-sm text-gray-500">
+                {booking.startTime || "--"} - {booking.endTime || "Ongoing"}
+              </p>
+
+              <p className="mt-2">
+                <span className="font-medium">Customer:</span>{" "}
+                {booking.customerName || "N/A"}
+              </p>
+
+              <div className="mt-4">
+                <p className="font-medium mb-2">Services</p>
+
+                {booking.services?.length ? (
+                  <div className="flex flex-wrap gap-2">
+                    {booking.services.map((service, i) => (
+                      <span
+                        key={i}
+                        className="px-3 py-1 rounded-full text-xs bg-gray-100 text-gray-600"
+                      >
+                        {service}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-gray-400 text-sm italic">
+                    No services selected
+                  </p>
+                )}
+              </div>
+
+              <div className="border-t my-4"></div>
+
+              {hasHourlyService && hours && (
+                <p className="text-sm">
+                  <span className="font-medium">Daily Hours:</span> {hours} hrs
+                </p>
+              )}
+
+              <div className="mt-4 grid grid-cols-3 gap-4 text-sm">
+                <div>
+                  <p className="text-gray-500">Total Days</p>
+                  <p className="font-semibold">{booking.totalDays}</p>
+                </div>
+                <div>
+                  <p className="text-gray-500">Chargeable</p>
+                  <p className="font-semibold">{booking.chargeableDays}</p>
+                </div>
+                <div>
+                  <p className="text-gray-500">Holidays</p>
+                  <p className="font-semibold">{booking.holidays}</p>
+                </div>
+              </div>
+
+              <div className="mt-5 flex gap-3 flex-wrap">
+
+                {normalizeStatus(booking.status) === "PENDING" && (
+                  <>
+                    <Button onClick={() => handleAccept(booking.bookingId)}>
+                      Accept
+                    </Button>
+
+                    <Button
+                      variant="secondary"
+                      onClick={() => handleReject(booking.bookingId)}
+                    >
+                      Reject
+                    </Button>
+                  </>
+                )}
+
+                {normalizeStatus(booking.status) === "CONFIRMED" && (
+                  <Button onClick={() => handleStartWork(booking.bookingId)}>
+                    Start Work
+                  </Button>
+                )}
+
+                {normalizeStatus(booking.status) === "SERVICE_IN_PROGRESS" && (
+                  <Button
+                    className="bg-red-500 text-white hover:bg-red-600"
+                    onClick={() => handleTerminate(booking.bookingId)}
+                  >
+                    Terminate
+                  </Button>
+                )}
+
+              </div>
+            </Card>
+          );
+        })}
+      </div>
+    </Container>
   );
 }
 
-/* STATUS BADGE */
+/* 🎯 STATUS BADGE */
 const StatusBadge = ({ status }) => {
-  const colors = {
-    PENDING: "#6b7280",
-    CONFIRMED: "#2563eb",
-    SERVICE_IN_PROGRESS: "#f59e0b",
-    COMPLETED: "#16a34a",
-    CANCELLED: "#dc2626",
+  const normalizeStatus = (s) => (s || "").toUpperCase().trim();
+
+  const styles = {
+    PENDING: "bg-gray-100 text-gray-600 border border-gray-200",
+    CONFIRMED: "bg-blue-100 text-blue-600 border border-blue-200",
+    SERVICE_IN_PROGRESS: "bg-yellow-100 text-yellow-700 border border-yellow-200",
+    COMPLETED: "bg-green-100 text-green-700 border border-green-200",
+    CANCELLED: "bg-red-100 text-red-600 border border-red-200",
   };
+
+  const key = normalizeStatus(status);
 
   return (
     <span
-      style={{
-        padding: "6px 12px",
-        borderRadius: "20px",
-        fontSize: "13px",
-        fontWeight: "bold",
-        background: colors[status] || "#6b7280",
-        color: "white",
-      }}
+      className={`
+        px-3 py-1 rounded-full text-xs font-medium border
+        ${styles[key] || "bg-gray-100 text-gray-600"}
+      `}
     >
-      {status}
+      {key}
     </span>
   );
 };

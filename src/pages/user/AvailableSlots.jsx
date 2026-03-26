@@ -1,11 +1,14 @@
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import api from "../../api/axios";
+
+import Container from "../../components/ui/Container";
+import ProviderCard from "../../components/booking/ProviderCard";
+import SkeletonCard from "../../components/ui/SkeletonCard";
 
 function AvailableSlots() {
 
   const location = useLocation();
-  const navigate = useNavigate();
 
   const {
     services,
@@ -17,17 +20,19 @@ function AvailableSlots() {
   } = location.state || {};
 
   const [providers, setProviders] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const formattedDate = date
     ? new Date(date).toISOString().split("T")[0]
     : null;
 
-  // 🔥 normalize function (fixes timezone issues)
   const normalize = (d) => d?.split("T")[0];
 
   useEffect(() => {
 
     if (!services || services.length === 0) return;
+
+    setLoading(true);
 
     api.post("/api/bookings/provider-options", {
       services: services.map(s => ({
@@ -36,7 +41,7 @@ function AvailableSlots() {
       })),
       houseSize,
       members,
-      startDate: date  
+      startDate: date
     })
     .then(res => {
 
@@ -50,135 +55,108 @@ function AvailableSlots() {
           }))
       );
 
-      Promise.all(promises).then(setProviders);
+      Promise.all(promises)
+        .then(setProviders)
+        .finally(() => setLoading(false));
 
     })
     .catch(err => {
       console.error("Error fetching providers:", err);
+      setLoading(false);
     });
 
   }, [services]);
 
-  const selectSlot = (providerId, slotId) => {
-
-    navigate("/user/preview", {
-      state: {
-        providerId,
-        availabilityId: slotId,
-        services,
-        hoursPerDay,
-        houseSize,
-        members,
-        startDate: date,
-        preferredStartTime
-      }
-    });
-
-  };
+  // 🔥 FILTERED PROVIDERS
+  const validProviders = providers
+    .filter(provider => {
+      const validSlots = provider.slots.filter(slot =>
+        normalize(slot.date) === normalize(formattedDate) &&
+        slot.active === true
+      );
+      return validSlots.length > 0;
+    })
+    .sort((a, b) => a.price - b.price);
 
   return (
+    <Container>
 
-    <div>
+      {/* 🔥 HEADER */}
+      <div className="mb-8 animate-fadeIn">
 
-      <h2>Choose Provider & Slot</h2>
+        <h2 className="
+          text-3xl font-bold
+          bg-brand-gradient bg-clip-text text-transparent
+        ">
+          Choose Your Professional 👩‍🔧
+        </h2>
 
-      <p>Date: {date}</p>
+        <p className="text-textSub mt-2">
+          Available on {date}
+        </p>
 
-      {providers.length === 0 && <p>Loading providers...</p>}
+      </div>
 
-      {providers
-        // 🔥 ONLY providers with valid slots
-        .filter(provider => {
+      {/* 🔥 LOADING */}
+      {loading && (
+        <div className="space-y-4">
+          {[1,2,3].map(i => <SkeletonCard key={i} />)}
+        </div>
+      )}
 
-          const validSlots = provider.slots.filter(slot =>
-            normalize(slot.date) === normalize(formattedDate) &&
-            slot.active === true
-          );
+      {/* ❌ EMPTY STATE */}
+      {!loading && validProviders.length === 0 && (
+        <div className="text-center py-20 animate-fadeIn">
 
-          return validSlots.length > 0;
-        })
-        // 💰 cheapest first
-        .sort((a, b) => a.price - b.price)
-        .map(provider => {
+          <p className="text-lg font-medium text-textMain">
+            No providers available 😔
+          </p>
 
-          const filteredSlots = provider.slots.filter(slot =>
-            normalize(slot.date) === normalize(formattedDate) &&
-            slot.active === true
-          );
+          <p className="text-sm text-textSub mt-2">
+            Try changing date or time
+          </p>
 
-          return (
+        </div>
+      )}
 
-            <div
-              key={provider.providerId}
-              style={{
-                border: "1px solid gray",
-                padding: 15,
-                margin: 10,
-                display: "flex",
-                gap: "15px",
-                alignItems: "flex-start"
-              }}
-            >
+      {/* 🔥 PROVIDER LIST */}
+      <div className="space-y-6">
 
-              {/* 🧑 PHOTO */}
-              <img
-                src={
-                  provider.profilePhotoUrl
-                    ? `http://localhost:8080${provider.profilePhotoUrl}`
-                    : "/default-user.png"
-                }
-                alt="provider"
-                width="80"
-                height="80"
-                style={{ borderRadius: "50%" }}
-              />
+        {!loading && validProviders.map((provider, index) => (
 
-              {/* 📄 INFO */}
-              <div style={{ flex: 1 }}>
+          <div
+            key={provider.providerId}
+            className="animate-fadeIn"
+          >
 
-                <h3>{provider.name}</h3>
-
-                <p>⭐ {provider.rating} | {provider.experience} yrs exp</p>
-
-                <h4>💰 ₹{provider.price}</h4>
-
-                {/* 🔍 BREAKDOWN */}
-                <div>
-                  {Object.entries(provider.breakdown).map(([s, p]) => (
-                    <p key={s}>{s} → ₹{p}</p>
-                  ))}
-                </div>
-
-                {/* ⏱ SLOTS */}
-                <h4>Available Slots</h4>
-
-                {filteredSlots.map(slot => (
-
-                  <div key={slot.id} style={{ marginBottom: "5px" }}>
-
-                    {slot.startTime} - {slot.endTime}
-
-                    <button
-                      style={{ marginLeft: "10px" }}
-                      onClick={() => selectSlot(provider.providerId, slot.id)}
-                    >
-                      Select
-                    </button>
-
-                  </div>
-
-                ))}
-
+            {/* 🏆 BEST CHOICE TAG */}
+            {index === 0 && (
+              <div className="
+                inline-block mb-2 px-3 py-1 text-xs font-medium
+                bg-brand-gradient text-white rounded-full shadow-glow
+              ">
+                ⭐ Best Price
               </div>
+            )}
 
-            </div>
+            <ProviderCard
+              provider={provider}
+              index={index}
+              date={date}
+              services={services}
+              hoursPerDay={hoursPerDay}
+              houseSize={houseSize}
+              members={members}
+              preferredStartTime={preferredStartTime}
+            />
 
-          );
+          </div>
 
-        })}
+        ))}
 
-    </div>
+      </div>
 
+    </Container>
   );
 }
 

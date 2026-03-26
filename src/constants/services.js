@@ -5,7 +5,5 @@ export const SERVICES = [
   "LAUNDRY",
   "DISH_WASHING",
   "ELDER_CARE",
-  "DEEP_CLEANING",
-  "PET_CARE",
   "DUSTING"
 ];

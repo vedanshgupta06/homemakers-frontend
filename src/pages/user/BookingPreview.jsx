@@ -2,6 +2,11 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import api from "../../api/axios";
 
+// ✅ NEW IMPORTS
+import Container from "../../components/ui/Container";
+import Card from "../../components/ui/Card";
+import Button from "../../components/ui/Button";
+
 function BookingPreview() {
 
   const location = useLocation();
@@ -34,8 +39,6 @@ function BookingPreview() {
       )
     };
 
-    console.log("Preview Request:", requestBody);
-
     api.post("/api/bookings/preview", requestBody)
       .then(res => {
         setPreview(res.data);
@@ -64,10 +67,12 @@ function BookingPreview() {
 
     api.post("/api/bookings", requestBody)
       .then(() => {
-
-        alert("Booking created!");
-        navigate("/user/my-bookings");
-
+        navigate("/user/success", {
+          state: {
+            providerName: preview.providerName,
+            slot: `${preview.slotStart} - ${preview.slotEnd}`
+          }
+        });
       })
       .catch(err => {
         console.error("Booking failed", err);
@@ -75,45 +80,75 @@ function BookingPreview() {
 
   };
 
+  // ✅ LOADING STATE (UPGRADED)
   if (!preview) {
-    return <p>Loading preview...</p>;
+    return (
+      <Container>
+        <div className="text-gray-400">Loading preview...</div>
+      </Container>
+    );
   }
 
   return (
 
-    <div>
+    <Container>
 
-      <h2>Booking Preview</h2>
+      {/* HEADER */}
+      <h2 className="text-2xl font-semibold text-primary mb-6">
+        Booking Preview
+      </h2>
 
-      <p>
-        <b>Provider:</b> {preview.providerName}
-      </p>
+      <Card className="space-y-4">
 
-      <p>
-        <b>Slot:</b> {preview.slotStart} - {preview.slotEnd}
-      </p>
+        {/* PROVIDER */}
+        <div>
+          <p className="text-sm text-gray-500">Provider</p>
+          <p className="font-medium">{preview.providerName}</p>
+        </div>
 
-      <p>
-        <b>Services:</b> {Object.keys(preview.serviceWisePrice).join(", ")}
-      </p>
+        {/* SLOT */}
+        <div>
+          <p className="text-sm text-gray-500">Time Slot</p>
+          <p>{preview.slotStart} - {preview.slotEnd}</p>
+        </div>
 
-      <p>
-        <b>House Size:</b> {preview.houseSize}
-      </p>
+        {/* SERVICES */}
+        <div>
+          <p className="text-sm text-gray-500">Services</p>
+          <p>{Object.keys(preview.serviceWisePrice).join(", ")}</p>
+        </div>
 
-      <p>
-        <b>Members:</b> {preview.members}
-      </p>
+        {/* HOUSE SIZE */}
+        <div>
+          <p className="text-sm text-gray-500">House Size</p>
+          <p>{preview.houseSize}</p>
+        </div>
 
-      <h3>
-        Total Monthly Price: ₹{preview.totalMonthlyPrice}
-      </h3>
+        {/* MEMBERS */}
+        <div>
+          <p className="text-sm text-gray-500">Members</p>
+          <p>{preview.members}</p>
+        </div>
 
-      <button onClick={confirmBooking}>
-        Confirm Booking
-      </button>
+        {/* PRICE */}
+        <div className="border-t pt-4">
+          <p className="text-sm text-gray-500">Total Monthly Price</p>
+          <p className="text-xl font-semibold text-primary">
+            ₹{preview.totalMonthlyPrice}
+          </p>
+        </div>
 
-    </div>
+        {/* CTA BUTTON */}
+        <Button
+          onClick={confirmBooking}
+          className="w-full mt-4"
+        >
+          Confirm Booking
+        </Button>
+
+      </Card>
+
+    </Container>
 
   );
 

@@ -1,7 +1,11 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./auth/Login";
+import Register from "./auth/Register";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import RoleRedirect from "./routes/RoleRedirect";
+
+/* LAYOUT */
+import MainLayout from "./components/layout/MainLayout";
 
 /* USER */
 import UserDashboard from "./pages/user/UserDashboard";
@@ -15,9 +19,10 @@ import SelectDateTime from "./pages/user/SelectDateTime";
 import BookingPreview from "./pages/user/BookingPreview";
 import AvailableSlots from "./pages/user/AvailableSlots";
 import PaymentRequired from "./pages/user/PaymentRequired";
-import Register from "./auth/Register";
 import WalletRecharge from "./pages/user/WalletRecharge";
 import PaymentHistory from "./pages/user/PaymentHistory";
+import BookingSuccess from "./pages/user/BookingSuccess";
+import UserProfile from "./pages/user/UserProfile";
 /* PROVIDER */
 import ProviderDashboard from "./pages/provider/ProviderDashboard";
 import ProviderBookings from "./pages/provider/ProviderBookings";
@@ -47,10 +52,10 @@ function App() {
     <BrowserRouter>
       <Routes>
 
-        {/* PUBLIC */}
-        <Route path="/register" element={<Register />} />
+        {/* ================= PUBLIC ================= */}
         <Route path="/" element={<Navigate to="/login" />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
         {/* REDIRECT AFTER LOGIN */}
         <Route
@@ -67,149 +72,61 @@ function App() {
           path="/user"
           element={
             <ProtectedRoute allowedRoles={["USER"]}>
-              <UserDashboard />
+              <MainLayout />
             </ProtectedRoute>
           }
-        />
+        >
+         
 
-        <Route
-          path="/user/providers"
-          element={
-            <ProtectedRoute allowedRoles={["USER"]}>
-              <ProvidersList />
-            </ProtectedRoute>
-          }
-        />
+            <Route
+              path="/user/profile"
+              element={
+                <ProtectedRoute role="USER">
+                  <UserProfile />
+                </ProtectedRoute>
+              }
+            />
+          <Route index element={<UserDashboard />} />
 
-        <Route
-          path="/user/providers/:providerId"
-          element={
-            <ProtectedRoute allowedRoles={["USER"]}>
-              <ProviderDetails />
-            </ProtectedRoute>
-          }
-        />
-        {/* <Route
-          path="/user/attendance"
-          element={
-            <ProtectedRoute role="USER">
-              <AttendanceApproval />
-            </ProtectedRoute>
-          }
-        /> */}
-        <Route
-          path="/user/bookings"
-          element={
-            <ProtectedRoute allowedRoles={["USER"]}>
-              <MyBookings />
-            </ProtectedRoute>
-          }
-        />
+          <Route path="providers" element={<ProvidersList />} />
+          <Route path="providers/:providerId" element={<ProviderDetails />} />
 
-        {/* CUSTOMER ATTENDANCE CONFIRMATION */}
-        <Route
-          path="/user/attendance"
-          element={
-            <ProtectedRoute allowedRoles={["USER"]}>
-              <AttendanceApproval />
-            </ProtectedRoute>
-          }
-        />
-        <Route path="/user/services" element={<SelectServices />} />
-        <Route path="/user/slots" element={<AvailableSlots />} />
-        <Route
-          path="/user/payments"
-          element={
-            <ProtectedRoute allowedRoles={["USER"]}>
-              <PaymentRequired />
-            </ProtectedRoute>
-          }
-        />
-        <Route path="/user/requirements" element={<Requirements />} />
-        <Route path="/user/date" element={<SelectDateTime />} />
-        <Route path="/user/preview" element={<BookingPreview />} />
-        <Route path="/user/wallet" element={<WalletRecharge />} />
-        <Route path="/user/payments/history" element={<PaymentHistory />} />
+          <Route path="bookings" element={<MyBookings />} />
+          <Route path="attendance" element={<AttendanceApproval />} />
+          <Route path="services" element={<SelectServices />} />
+          <Route path="requirements" element={<Requirements />} />
+          <Route path="date" element={<SelectDateTime />} />
+          <Route path="slots" element={<AvailableSlots />} />
+          <Route path="preview" element={<BookingPreview />} />
+          <Route path="payments" element={<PaymentRequired />} />
+          <Route path="payments/history" element={<PaymentHistory />} />
+          <Route path="wallet" element={<WalletRecharge />} />
+          <Route path="success" element={<BookingSuccess />} />
+        </Route>
 
-        
         {/* ================= PROVIDER ================= */}
         <Route
           path="/provider"
           element={
             <ProtectedRoute allowedRoles={["PROVIDER"]}>
-              <ProviderDashboard />
+              <MainLayout />
             </ProtectedRoute>
           }
-        />
+        >
+          <Route index element={<ProviderDashboard />} />
 
-        <Route
-          path="/provider/bookings"
-          element={
-            <ProtectedRoute allowedRoles={["PROVIDER"]}>
-              <ProviderBookings />
-            </ProtectedRoute>
-          }
-        />
-
-        {/* PROVIDER ATTENDANCE */}
-        <Route path="/provider/photo" element={<ProviderPhotoUpload />} />
-        <Route path="/provider/documents" element={<ProviderDocuments />} />
-        <Route
-          path="/provider/attendance"
-          element={
-            <ProtectedRoute allowedRoles={["PROVIDER"]}>
-              <ProviderAttendance />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/provider/earnings"
-          element={
-            <ProtectedRoute allowedRoles={["PROVIDER"]}>
-              <ProviderEarnings />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/provider/payouts"
-          element={
-            <ProtectedRoute allowedRoles={["PROVIDER"]}>
-              <ProviderPayouts />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/provider/deductions"
-          element={
-            <ProtectedRoute allowedRoles={["PROVIDER"]}>
-              <ProviderDeductions />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/provider/availability"
-          element={
-            <ProtectedRoute allowedRoles={["PROVIDER"]}>
-              <ProviderAvailability />
-            </ProtectedRoute>
-          }
-        />
-
-       <Route path="/provider/setup-profile" element={<ProviderProfile />} />
-       <Route path="/provider/profile" element={<ProviderAccountProfile />} />
-
-        <Route
-          path="/provider/pricing"
-          element={
-            <ProtectedRoute allowedRoles={["PROVIDER"]}>
-              <ProviderPricing />
-            </ProtectedRoute>
-          }
-        />
+          <Route path="bookings" element={<ProviderBookings />} />
+          <Route path="photo" element={<ProviderPhotoUpload />} />
+          <Route path="documents" element={<ProviderDocuments />} />
+          <Route path="attendance" element={<ProviderAttendance />} />
+          <Route path="earnings" element={<ProviderEarnings />} />
+          <Route path="payouts" element={<ProviderPayouts />} />
+          <Route path="deductions" element={<ProviderDeductions />} />
+          <Route path="availability" element={<ProviderAvailability />} />
+          <Route path="pricing" element={<ProviderPricing />} />
+          <Route path="profile" element={<ProviderProfile />} />
+          
+        </Route>
 
         {/* ================= ADMIN ================= */}
         <Route
@@ -222,15 +139,15 @@ function App() {
         >
           <Route index element={<AdminDashboard />} />
 
-          <Route path="/admin/payouts/requests" element={<AdminPayoutRequests />} />
-          <Route path="/admin/payouts/history" element={<AdminPayoutHistory />} />
+          <Route path="payouts/requests" element={<AdminPayoutRequests />} />
+          <Route path="payouts/history" element={<AdminPayoutHistory />} />
           <Route path="providers" element={<ProvidersListAdmin />} />
           <Route path="providers/:providerId" element={<ProviderDetailsAdmin />} />
           <Route path="bookings" element={<AdminBookings />} />
           <Route path="reports" element={<AdminReports />} />
         </Route>
 
-        {/* FALLBACK */}
+        {/* ================= FALLBACK ================= */}
         <Route path="*" element={<Navigate to="/login" />} />
 
       </Routes>

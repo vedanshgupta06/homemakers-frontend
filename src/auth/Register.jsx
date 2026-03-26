@@ -1,6 +1,10 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import api from "../api/axios";
+
+import Container from "../components/ui/Container";
+import Card from "../components/ui/Card";
+import Button from "../components/ui/Button";
 
 const Register = () => {
 
@@ -8,15 +12,19 @@ const Register = () => {
   const [email,setEmail] = useState("");
   const [password,setPassword] = useState("");
   const [role,setRole] = useState("USER");
-  const [city, setCity] = useState(""); // ✅ FIX
+  const [city, setCity] = useState("");
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const cities = ["Delhi", "Mumbai", "Pune", "Nagpur", "Bangalore"];
 
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
-
     e.preventDefault();
+    setError("");
+    setLoading(true);
 
     try{
 
@@ -25,90 +33,119 @@ const Register = () => {
         email,
         password,
         role,
-        city   // ✅ now works
+        city
       });
-
-      alert("Registration successful");
 
       navigate("/login");
 
     }catch(err){
-
       console.error(err);
-      alert("Registration failed");
-
+      setError("Registration failed. Try again.");
+    } finally {
+      setLoading(false);
     }
-
   };
 
   return (
 
-    <div style={{padding:"40px"}}>
+    <Container>
 
-      <h2>Register</h2>
+      <div className="flex justify-center items-center min-h-[80vh]">
 
-      <form onSubmit={handleSubmit}>
+        <Card className="w-full max-w-md space-y-5">
 
-        <input
-          placeholder="Name"
-          value={name}
-          onChange={(e)=>setName(e.target.value)}
-        />
+          {/* HEADER */}
+          <div>
+            <h2 className="text-2xl font-semibold text-primary">
+              Create account 
+            </h2>
+            <p className="text-sm text-gray-500">
+              Join Homemakers today
+            </p>
+          </div>
 
-        <br/><br/>
+          {/* ERROR */}
+          {error && (
+            <div className="text-sm text-red-600 bg-red-50 p-2 rounded-lg">
+              {error}
+            </div>
+          )}
 
-        <input
-          placeholder="Email"
-          value={email}
-          onChange={(e)=>setEmail(e.target.value)}
-        />
+          {/* FORM */}
+          <form onSubmit={handleSubmit} className="space-y-4">
 
-        <br/><br/>
+            {/* NAME */}
+            <input
+              placeholder="Full Name"
+              value={name}
+              onChange={(e)=>setName(e.target.value)}
+              className="w-full border border-gray-300 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+              required
+            />
 
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e)=>setPassword(e.target.value)}
-        />
+            {/* EMAIL */}
+            <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e)=>setEmail(e.target.value)}
+              className="w-full border border-gray-300 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+              required
+            />
 
-        <br/><br/>
+            {/* PASSWORD */}
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e)=>setPassword(e.target.value)}
+              className="w-full border border-gray-300 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+              required
+            />
 
-        <label>Register As</label>
+            {/* ROLE */}
+            <select
+              value={role}
+              onChange={(e)=>setRole(e.target.value)}
+              className="w-full border border-gray-300 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+            >
+              <option value="USER">User</option>
+              <option value="PROVIDER">Provider</option>
+            </select>
 
-        <br/>
+            {/* CITY */}
+            <select
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+              className="w-full border border-gray-300 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+              required
+            >
+              <option value="">Select City</option>
+              {cities.map(c => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
 
-        <select
-          value={role}
-          onChange={(e)=>setRole(e.target.value)}
-        >
-          <option value="USER">User</option>
-          <option value="PROVIDER">Provider</option>
-        </select>
+            {/* BUTTON */}
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? "Creating account..." : "Register"}
+            </Button>
 
-        <br/><br/>
+          </form>
 
-        {/* ✅ CITY FIX */}
-        <select
-          value={city}
-          onChange={(e) => setCity(e.target.value)}
-          required
-        >
-          <option value="">Select City</option>
-          {cities.map(c => (
-            <option key={c} value={c}>{c}</option>
-          ))}
-        </select>
+          {/* FOOTER */}
+          <p className="text-sm text-gray-500 text-center">
+            Already have an account?{" "}
+            <Link to="/login" className="text-primary font-medium">
+              Login
+            </Link>
+          </p>
 
-        <br/><br/>
+        </Card>
 
-        <button type="submit">
-          Register
-        </button>
+      </div>
 
-      </form>
-
-    </div>
+    </Container>
 
   );
 

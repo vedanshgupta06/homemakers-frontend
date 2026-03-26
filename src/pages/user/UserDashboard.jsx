@@ -1,19 +1,25 @@
 import { useAuth } from '../../context/AuthContext';
 import Logout from '../../auth/Logout';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from "react";
 import { getWalletBalance } from "../../api/walletApi";
+import api from "../../api/axios";
+
+import Container from "../../components/ui/Container";
+import Card from "../../components/ui/Card";
 
 function UserDashboard() {
 
   const { role } = useAuth();
+  const navigate = useNavigate();
 
   const [wallet, setWallet] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(null);
 
-  // 🔥 Fetch wallet on load
   useEffect(() => {
     fetchWallet();
+    fetchProfile();
   }, []);
 
   const fetchWallet = async () => {
@@ -27,58 +33,121 @@ function UserDashboard() {
     }
   };
 
+  const fetchProfile = async () => {
+    try {
+      const res = await api.get("/api/users/profile");
+      setUser(res.data);
+    } catch (err) {
+      console.error("Profile fetch failed", err);
+    }
+  };
+
+  const actions = [
+    { title: "Recharge Wallet", path: "/user/wallet" },
+    { title: "My Bookings", path: "/user/bookings" },
+    { title: "Attendance Approval", path: "/user/attendance" },
+    { title: "Book Service", path: "/user/services" },
+    { title: "Pending Payments", path: "/user/payments" },
+    { title: "Payment History", path: "/user/payments/history" },
+  ];
+
   return (
-    <div style={{ padding: '20px' }}>
+    <Container>
 
-      <h2>User Dashboard</h2>
-      <p>Role: {role}</p>
+      {/* 🔥 HEADER */}
+      <div className="relative mb-10 animate-fadeIn">
 
-      <hr />
+        {/* Glow */}
+        <div className="absolute -top-16 -left-10 w-72 h-72 bg-pink-400/20 blur-3xl rounded-full"></div>
 
-      {/* 🔥 WALLET CARD */}
-      <div style={{
-        border: "1px solid #ccc",
-        padding: "15px",
-        marginBottom: "20px",
-        borderRadius: "10px",
-        backgroundColor: "#f9f9f9"
-      }}>
-        <h3>Wallet Balance</h3>
+        <div className="relative">
 
-        {loading ? (
-          <p>Loading...</p>
-        ) : (
-          <p style={{ fontSize: "18px", fontWeight: "bold" }}>
-            ₹ {wallet}
+          <h2 className="
+            text-3xl font-bold 
+            bg-brand-gradient bg-clip-text text-transparent
+          ">
+            Welcome back, {user?.name || "User"} 👋
+          </h2>
+
+          <p className="text-textSub mt-2">
+            Manage your home services effortlessly
           </p>
-        )}
+
+        </div>
+
       </div>
 
-      {/* 🔥 NAVIGATION */}
-      <ul>
-        <li>
-          <Link to="/user/wallet">Recharge Wallet</Link>
-        </li>
-        <li>
-          <Link to="/user/bookings">My Bookings</Link>
-        </li>
-        <li>
-          <Link to="/user/attendance">Attendance Approval</Link>
-        </li>
-        <li>
-          <Link to="/user/services">Book Service</Link>
-        </li>
-        <li>
-          <Link to="/user/payments">Pending Payments</Link>
-        </li>
-        <li>  
-        <Link to="/user/payments/history">Payment History</Link>
-        </li>
-      </ul>
+      {/* 💳 WALLET CARD */}
+      <Card className="
+        mb-8 flex justify-between items-center
+        bg-brand-gradient text-white shadow-glow
+        animate-fadeIn
+      ">
 
-      <Logout />
+        <div>
+          <p className="text-sm opacity-80">Wallet Balance</p>
 
-    </div>
+          {loading ? (
+            <p className="opacity-70">Loading...</p>
+          ) : (
+            <p className="text-3xl font-bold">
+              ₹ {wallet}
+            </p>
+          )}
+        </div>
+
+        <Link
+          to="/user/wallet"
+          className="
+            bg-white/90 text-gray-800
+            px-4 py-2 rounded-lg text-sm font-medium
+
+            hover:bg-white hover:scale-105
+            transition-all duration-300
+          "
+        >
+          Recharge →
+        </Link>
+
+      </Card>
+
+      {/* ⚡ ACTION GRID */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-5">
+
+        {actions.map((item, i) => (
+          <Card
+            key={i}
+            onClick={() => navigate(item.path)}
+            className="group animate-fadeIn"
+          >
+
+            <p className="
+              text-sm font-medium text-textMain
+              transition-all duration-300
+              group-hover:text-pink-500
+            ">
+              {item.title}
+            </p>
+
+            {/* underline animation */}
+            <div className="
+              mt-2 h-[2px] w-0 
+              bg-brand-gradient
+              transition-all duration-300
+              group-hover:w-full
+            " />
+
+          </Card>
+        ))}
+
+      </div>
+
+      {/* LOGOUT */}
+      <div className="mt-10">
+        <Logout />
+      </div>
+
+    </Container>
   );
 }
 

@@ -1,13 +1,17 @@
 import { useEffect, useState } from "react";
-import { 
-  getMyPayouts, 
-  requestPayout, 
-  getWalletSummary 
+import {
+  getMyPayouts,
+  requestPayout,
+  getWalletSummary,
 } from "../../api/providerPayoutApi";
+
+import Container from "../../components/ui/Container";
+import Card from "../../components/ui/Card";
+import Button from "../../components/ui/Button";
 
 export default function ProviderPayouts() {
   const [payouts, setPayouts] = useState([]);
-  const [wallet, setWallet] = useState(null);
+  const [wallet, setWallet] = useState({});
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
 
@@ -19,7 +23,7 @@ export default function ProviderPayouts() {
     try {
       const [payoutRes, walletRes] = await Promise.all([
         getMyPayouts(),
-        getWalletSummary()
+        getWalletSummary(),
       ]);
 
       setPayouts(payoutRes.data || []);
@@ -45,7 +49,16 @@ export default function ProviderPayouts() {
     }
   };
 
-  if (loading) return <p>Loading payouts...</p>;
+  const formatCurrency = (val) =>
+    `₹ ${Number(val || 0).toFixed(2)}`;
+
+  if (loading) {
+    return (
+      <Container>
+        <p className="text-gray-500">Loading payouts...</p>
+      </Container>
+    );
+  }
 
   const available = wallet?.available || 0;
   const requested = wallet?.requested || 0;
@@ -54,118 +67,151 @@ export default function ProviderPayouts() {
   const nextEligible = wallet?.nextEligibleWithdrawalDate;
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h2>Withdraw Earnings</h2>
+    <Container>
+      <div className="max-w-5xl mx-auto space-y-8 animate-fadeIn">
 
-      <div
-        style={{
-          border: "1px solid #e5e7eb",
-          borderRadius: "12px",
-          padding: "20px",
-          background: "#ffffff",
-          marginBottom: "30px"
-        }}
-      >
-        <p style={{ color: "#6b7280" }}>Available Balance</p>
-        <h3 style={{ color: "#16a34a" }}>₹{available}</h3>
+        {/* 🔥 HEADER */}
+        <div className="relative">
+          <div className="
+            absolute -top-16 -left-10 w-72 h-72 
+            bg-pink-400/20 blur-3xl rounded-full
+            pointer-events-none
+          "></div>
 
-        {requested > 0 && (
-          <p style={{ color: "#f59e0b" }}>
-            Processing: ₹{requested}
+          <div className="relative z-10">
+            <h2 className="
+              text-3xl font-bold 
+              bg-brand-gradient bg-clip-text text-transparent
+            ">
+              Withdraw Earnings 💸
+            </h2>
+
+            <p className="text-textSub mt-2">
+              Manage your payouts and withdrawal requests
+            </p>
+          </div>
+        </div>
+
+        {/* 💰 WALLET CARD */}
+        <Card className="p-6 space-y-3">
+
+          <p className="text-sm text-gray-500">Available Balance</p>
+          <h2 className="text-3xl font-bold text-green-600">
+            {formatCurrency(available)}
+          </h2>
+
+          {requested > 0 && (
+            <p className="text-yellow-600 text-sm">
+              Processing: {formatCurrency(requested)}
+            </p>
+          )}
+
+          <p className="text-gray-500 text-sm">
+            Total Paid: {formatCurrency(paid)}
           </p>
-        )}
 
-        <p style={{ color: "#6b7280" }}>
-          Total Paid: ₹{paid}
-        </p>
+          <Button
+            className="mt-3"
+            onClick={handleRequest}
+            disabled={!canWithdraw || available <= 0}
+          >
+            {available <= 0
+              ? "No balance available"
+              : !canWithdraw
+              ? "Withdrawal locked (7 days)"
+              : "Request Withdrawal"}
+          </Button>
 
-        <button
-          onClick={handleRequest}
-          disabled={!canWithdraw || available <= 0}
-          style={{
-            marginTop: "15px",
-            padding: "8px 16px",
-            background:
-              canWithdraw && available > 0 ? "#2563eb" : "#9ca3af",
-            color: "#fff",
-            border: "none",
-            borderRadius: "6px",
-            cursor:
-              canWithdraw && available > 0
-                ? "pointer"
-                : "not-allowed"
-          }}
-        >
-          {available <= 0
-            ? "No balance available"
-            : !canWithdraw
-            ? "Withdrawal locked (7 days)"
-            : "Request Withdrawal"}
-        </button>
+          {!canWithdraw && nextEligible && (
+            <p className="text-red-500 text-sm mt-2">
+              🔒 Next withdrawal on{" "}
+              {new Date(nextEligible).toLocaleDateString()}
+            </p>
+          )}
 
-        {!canWithdraw && nextEligible && (
-          <p style={{ color: "#dc2626", marginTop: "8px" }}>
-            🔒 Next withdrawal available on{" "}
-            {new Date(nextEligible).toLocaleDateString()}
-          </p>
-        )}
+          {message && (
+            <p className="text-sm font-medium mt-2">
+              {message}
+            </p>
+          )}
 
-        {message && (
-          <p style={{ marginTop: "10px", fontWeight: "500" }}>
-            {message}
-          </p>
-        )}
+        </Card>
+
+        {/* 📋 HISTORY */}
+        <Card>
+          <h3 className="font-semibold mb-4">
+            Withdrawal History
+          </h3>
+
+          {payouts.length === 0 ? (
+            <p className="text-gray-400 text-sm italic">
+              No withdrawals yet
+            </p>
+          ) : (
+            <div className="space-y-4">
+
+              {payouts.map((p) => (
+                <div
+                  key={p.id}
+                  className="
+                    p-4 rounded-xl border
+                    hover:shadow-md hover:scale-[1.01]
+                    transition-all duration-300
+                  "
+                >
+
+                  <div className="flex justify-between items-center">
+
+                    <div>
+                      <p className="font-semibold">
+                        {formatCurrency(p.amount)}
+                      </p>
+
+                      <p className="text-sm text-gray-500">
+                        Created: {p.createdAt?.slice(0, 10)}
+                      </p>
+
+                      <p className="text-sm text-gray-500">
+                        Paid: {p.paidAt ? p.paidAt.slice(0, 10) : "-"}
+                      </p>
+                    </div>
+
+                    <StatusBadge status={p.status} />
+
+                  </div>
+
+                </div>
+              ))}
+
+            </div>
+          )}
+        </Card>
+
       </div>
-
-      <h3>Withdrawal History</h3>
-
-      {payouts.length === 0 ? (
-        <p>No withdrawals yet.</p>
-      ) : (
-        <table
-          border="1"
-          cellPadding="8"
-          cellSpacing="0"
-          style={{ width: "100%", borderCollapse: "collapse" }}
-        >
-          <thead style={{ background: "#f3f4f6" }}>
-            <tr>
-              <th>ID</th>
-              <th>Amount</th>
-              <th>Status</th>
-              <th>Created</th>
-              <th>Paid At</th>
-            </tr>
-          </thead>
-          <tbody>
-            {payouts.map((p) => (
-              <tr key={p.id}>
-                <td>{p.id}</td>
-                <td>₹{p.amount}</td>
-                <td>
-                  {p.status === "INITIATED" && (
-                    <span style={{ color: "#f59e0b" }}>
-                      Processing
-                    </span>
-                  )}
-                  {p.status === "PAID" && (
-                    <span style={{ color: "#16a34a" }}>
-                      Paid ✓
-                    </span>
-                  )}
-                  {p.status === "REJECTED" && (
-                    <span style={{ color: "#dc2626" }}>
-                      Rejected
-                    </span>
-                  )}
-                </td>
-                <td>{p.createdAt?.slice(0, 10)}</td>
-                <td>{p.paidAt ? p.paidAt.slice(0, 10) : "-"}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
-    </div>
+    </Container>
   );
 }
+
+/* 🎯 STATUS BADGE */
+const StatusBadge = ({ status }) => {
+  const styles = {
+    INITIATED: "bg-yellow-100 text-yellow-700 border border-yellow-200",
+    PAID: "bg-green-100 text-green-700 border border-green-200",
+    REJECTED: "bg-red-100 text-red-600 border border-red-200",
+  };
+
+  const normalize = (s) => (s || "").toUpperCase().trim();
+
+  const key = normalize(status);
+
+  return (
+    <span
+      className={`
+        px-3 py-1 rounded-full text-xs font-medium border
+        ${styles[key] || "bg-gray-100 text-gray-600"}
+      `}
+    >
+      {key === "INITIATED" ? "Processing" : key}
+    </span>
+  );
+};
