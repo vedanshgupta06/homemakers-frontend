@@ -6,3 +6,12 @@ body {
   font-family: 'Inter', sans-serif;
   background-color: #F8FAFC;
 }
+/* hide scrollbar for services strip */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
