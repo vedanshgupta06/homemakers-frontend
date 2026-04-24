@@ -2,16 +2,28 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  font-family: 'Inter', sans-serif;
-  background-color: #F8FAFC;
+@layer base {
+  body {
+    @apply bg-[#F8FAFC] text-slate-900 antialiased;
+    font-family: 'Inter', sans-serif;
+  }
+
+  /* Force headers to be bold and sharp by default */
+  h1, h2, h3, h4 {
+    @apply font-black tracking-tighter uppercase;
+  }
 }
-/* hide scrollbar for services strip */
-.scrollbar-hide::-webkit-scrollbar {
+
+/* Custom Utilities */
+.no-scrollbar::-webkit-scrollbar {
   display: none;
 }
-.scrollbar-hide {
+.no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
 
+/* Glassmorphism utility for floating navs or cards */
+.glass {
+  @apply bg-white/70 backdrop-blur-md border border-white/20;
+}
