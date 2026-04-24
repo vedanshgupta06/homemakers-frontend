@@ -9,7 +9,8 @@ export const getTodayAttendance = () => {
 export const markPresent = (id) => {
   return axios.put(`/api/provider/attendance/${id}/mark-present`);
 };
-
+export const markLeave = (id) =>
+  api.put(`/api/provider/attendance/${id}/mark-leave`);
 
 /* ---------------- CUSTOMER ---------------- */
 
