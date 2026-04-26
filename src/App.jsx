@@ -23,6 +23,9 @@ import WalletRecharge from "./pages/user/WalletRecharge";
 import PaymentHistory from "./pages/user/PaymentHistory";
 import BookingSuccess from "./pages/user/BookingSuccess";
 import UserProfile from "./pages/user/UserProfile";
+import BookingDetails from "./pages/user/BookingDetails";
+import HelpSupport from "./pages/user/HelpSupport";
+import AdminComplaints from "./pages/user/admin/complaints/AdminComplaints";
 /* PROVIDER */
 import ProviderDashboard from "./pages/provider/ProviderDashboard";
 import ProviderBookings from "./pages/provider/ProviderBookings";
@@ -102,6 +105,8 @@ function App() {
           <Route path="payments/history" element={<PaymentHistory />} />
           <Route path="wallet" element={<WalletRecharge />} />
           <Route path="success" element={<BookingSuccess />} />
+          <Route path="bookings/:id" element={<BookingDetails />} />
+          <Route path="help" element={<HelpSupport />} />
         </Route>
 
         {/* ================= PROVIDER ================= */}
@@ -145,6 +150,7 @@ function App() {
           <Route path="providers/:providerId" element={<ProviderDetailsAdmin />} />
           <Route path="bookings" element={<AdminBookings />} />
           <Route path="reports" element={<AdminReports />} />
+          <Route path="complaints" element={<AdminComplaints />} />
         </Route>
 
         {/* ================= FALLBACK ================= */}
