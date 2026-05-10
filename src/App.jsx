@@ -39,6 +39,7 @@ import ProviderAttendance from "./pages/provider/ProviderAttendance";
 import ProviderPhotoUpload from "./pages/provider/ProviderPhotoUpload";
 import ProviderDocuments from "./pages/provider/ProviderDocuments";
 import ProviderAccountProfile from "./pages/provider/ProviderAccountProfile";
+import ProviderNotifications from "./pages/provider/ProviderNotifications";
 
 /* ADMIN */
 import AdminLayout from "./pages/user/admin/layout/AdminLayout";
@@ -130,7 +131,7 @@ function App() {
           <Route path="availability" element={<ProviderAvailability />} />
           <Route path="pricing" element={<ProviderPricing />} />
           <Route path="profile" element={<ProviderProfile />} />
-          
+          <Route path="/provider/notifications" element={<ProviderNotifications />} />
         </Route>
 
         {/* ================= ADMIN ================= */}
