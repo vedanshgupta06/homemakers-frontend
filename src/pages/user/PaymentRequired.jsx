@@ -1,261 +1,99 @@
-// import { useEffect, useState } from "react";
-// import api from "../../api/axios";
-// import Container from "../../components/ui/Container";
-// import Card from "../../components/ui/Card";
-
-// function PaymentRequired() {
-
-//   const [bookings, setBookings] = useState([]);
-//   const [loading, setLoading] = useState(true);
-
-//   useEffect(() => {
-//     fetchBookings();
-//   }, []);
-
-//   const fetchBookings = async () => {
-//     try {
-//       const res = await api.get("/api/bookings/user/payment-required");
-//       setBookings(res.data);
-//     } catch (err) {
-//       console.error("Failed to fetch bookings:", err);
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   const pay = async (bookingId) => {
-//     try {
-//       const res = await api.post(`/api/payments/booking/${bookingId}`);
-//       window.location.href = res.data.url;
-//     } catch (err) {
-//       console.error("Payment failed:", err);
-//       alert("Already fully paid using wallet.");
-//     }
-//   };
-
-//   const totalDue = bookings.reduce(
-//     (sum, b) => sum + (b.finalPayableAmount || 0),
-//     0
-//   );
-
-//   const pendingCount = bookings.filter(
-//     b => b.finalPayableAmount > 0
-//   ).length;
-
-//   return (
-//     <Container>
-
-//       {/* 🔥 HEADER + STATS */}
-//       <div className="mb-8 space-y-6">
-
-//         {/* HEADER */}
-//         <div>
-//            <h2 className="
-//           text-3xl font-bold
-//           bg-brand-gradient bg-clip-text text-transparent
-//         ">
-//             Payments Dashboard 
-//           </h2>
-
-//           <p className="text-gray-500 mt-1">
-//             Manage and complete your payments
-//           </p>
-//         </div>
-
-//         {/* 🔥 STATS */}
-//         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-
-//           <div className="p-4 rounded-xl bg-gradient-to-r from-pink-500/10 to-purple-500/10">
-//             <p className="text-sm text-gray-500">Total Due</p>
-//             <p className="text-xl font-semibold">₹ {totalDue}</p>
-//           </div>
-
-//           <div className="p-4 rounded-xl bg-yellow-100/60">
-//             <p className="text-sm text-yellow-700">Pending</p>
-//             <p className="text-xl font-semibold text-yellow-800">
-//               {pendingCount}
-//             </p>
-//           </div>
-
-//           <div className="p-4 rounded-xl bg-green-100/60">
-//             <p className="text-sm text-green-700">Completed</p>
-//             <p className="text-xl font-semibold text-green-800">
-//               {bookings.length - pendingCount}
-//             </p>
-//           </div>
-
-//         </div>
-
-//       </div>
-
-//       {/* LOADING */}
-//       {loading && (
-//         <p className="text-gray-500">Loading payments...</p>
-//       )}
-
-//       {/* EMPTY STATE */}
-//       {!loading && bookings.length === 0 && (
-//         <div className="text-center py-20">
-
-//           <p className="text-lg font-medium">
-//             🎉 All payments completed
-//           </p>
-
-//           <p className="text-gray-400 mt-2">
-//             You have no pending dues
-//           </p>
-
-//         </div>
-//       )}
-
-//       {/* LIST */}
-//       <div className="space-y-5">
-
-//         {bookings
-//           .sort((a, b) => b.finalPayableAmount - a.finalPayableAmount)
-//           .map(b => {
-
-//           const fullyPaid = b.finalPayableAmount === 0;
-
-//           return (
-//             <Card
-//               key={b.id}
-//               className="
-//                 border border-gray-200
-//                 hover:shadow-xl
-//                 transition-all duration-300
-//               "
-//             >
-
-//               {/* TOP */}
-//               <div className="flex justify-between items-center mb-3">
-
-//                 <p className="font-medium text-gray-700">
-//                   Booking #{b.id}
-//                 </p>
-
-//                 {fullyPaid ? (
-//                   <span className="text-green-600 text-sm font-medium">
-//                     ✔ Paid
-//                   </span>
-//                 ) : (
-//                   <span className="text-yellow-600 text-sm font-medium">
-//                     Pending
-//                   </span>
-//                 )}
-
-//               </div>
-
-//               {/* PRICE DETAILS */}
-//               <div className="text-sm text-gray-600 space-y-1 mb-4">
-
-//                 <div className="flex justify-between">
-//                   <span>Total</span>
-//                   <span>₹{b.totalPrice}</span>
-//                 </div>
-
-//                 <div className="flex justify-between">
-//                   <span>Wallet Used</span>
-//                   <span>₹{b.walletUsed || 0}</span>
-//                 </div>
-
-//                 <div className="flex justify-between font-semibold text-gray-900">
-//                   <span>To Pay</span>
-//                   <span>₹{b.finalPayableAmount}</span>
-//                 </div>
-
-//               </div>
-
-//               {/* ACTION */}
-//               {!fullyPaid ? (
-//                 <button
-//                   onClick={() => pay(b.id)}
-//                   className="
-//                     w-full py-2 rounded-xl text-white font-medium
-//                     bg-gradient-to-r from-pink-500 to-indigo-600
-//                     hover:scale-[1.03] active:scale-[0.97]
-//                     transition-all duration-300 shadow-md
-//                   "
-//                 >
-//                   Pay ₹{b.finalPayableAmount}
-//                 </button>
-//               ) : (
-//                 <div className="text-green-600 text-sm font-medium">
-//                   Paid using wallet ✅
-//                 </div>
-//               )}
-
-//             </Card>
-//           );
-//         })}
-
-//       </div>
-
-//     </Container>
-//   );
-// }
-
-// export default PaymentRequired;
-
 import { useEffect, useState } from "react";
 import api from "../../api/axios";
 import { useNavigate } from "react-router-dom";
-import { IndianRupee, Wallet, Clock, CheckCircle2, SearchX, CreditCard, ArrowLeft } from "lucide-react";
+import { IndianRupee, Wallet, Clock, CheckCircle2, CreditCard, ArrowLeft } from "lucide-react";
 
 function PaymentRequired() {
-  const [bookings, setBookings] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [payingId, setPayingId] = useState(null);
+  const [bookings, setBookings]             = useState([]);
+  const [loading, setLoading]               = useState(true);
+  const [payingId, setPayingId]             = useState(null);
+  const [selectedMethod, setSelectedMethod] = useState({});
+  const [error, setError]                   = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => { fetchBookings(); }, []);
 
   const fetchBookings = async () => {
+    setLoading(true);
     try {
       const res = await api.get("/api/bookings/user/payment-required");
-      setBookings(res.data);
+      const all = (res.data || []).filter(b =>
+        (b.status || "").toUpperCase() !== "CANCELLED"
+      );
+      setBookings(all);
     } catch (err) {
       console.error("Failed to fetch bookings:", err);
+      setError("Failed to load payments. Please refresh.");
     } finally {
       setLoading(false);
     }
   };
 
   const pay = async (bookingId) => {
+    const method = selectedMethod[bookingId] || "stripe";
     setPayingId(bookingId);
+    setError(null);
     try {
-      const res = await api.post(`/api/payments/booking/${bookingId}`);
-      window.location.href = res.data.url;
+      if (method === "stripe") {
+        const res = await api.post(`/api/payments/booking/${bookingId}`);
+        window.location.href = res.data.url;
+      } else {
+        const res = await api.post(`/api/razorpay/order/${bookingId}`);
+        openRazorpay(res.data, bookingId);
+      }
     } catch (err) {
       console.error("Payment failed:", err);
+      setError(err.response?.data?.message || "Payment failed. Please try again.");
       setPayingId(null);
     }
   };
 
-  const totalDue = bookings.reduce((sum, b) => sum + (b.finalPayableAmount || 0), 0);
-  const pendingCount = bookings.filter(b => b.finalPayableAmount > 0).length;
-  const completedCount = bookings.length - pendingCount;
+  const openRazorpay = (data, bookingId) => {
+    const options = {
+      key:         import.meta.env.VITE_RAZORPAY_KEY_ID,
+      amount:      data.amount,
+      currency:    "INR",
+      order_id:    data.orderId,
+      name:        "Homemakers",
+      description: `Booking #${bookingId}`,
+      handler: async (response) => {
+        try {
+          await api.post("/api/razorpay/verify", response);
+          fetchBookings();
+        } catch {
+          setError("Payment verification failed. Please contact support.");
+        }
+      },
+      prefill: { contact: "", email: "" },
+      theme:   { color: "#2563EB" },
+      modal:   { ondismiss: () => setPayingId(null) },
+    };
+    const rzp = new window.Razorpay(options);
+    rzp.open();
+    setPayingId(null);
+  };
 
-  const sorted = [...bookings].sort((a, b) => b.finalPayableAmount - a.finalPayableAmount);
-  const navigate = useNavigate();
+  const totalDue       = bookings.reduce((sum, b) => sum + (b.finalPayableAmount || 0), 0);
+  const pendingCount   = bookings.filter(b => b.finalPayableAmount > 0).length;
+  const walletPaidCount = bookings.filter(b => b.finalPayableAmount === 0).length;
+  const sorted         = [...bookings].sort((a, b) => b.finalPayableAmount - a.finalPayableAmount);
+
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
 
       {/* HERO */}
-      <div className="bg-[#1E293B] pt-2 pb-20 md:pt-20 md:pb-24 px-[5%] relative overflow-hidden">
+      <div className="bg-[#1E293B] pt-2 pb-20 md:pt-20 md:pb-24 px-3 md:px-[5%] relative overflow-hidden">
         <div className="absolute top-0 right-0 w-[400px] h-[400px] rounded-full bg-blue-600/5 -translate-y-1/2 translate-x-1/4 pointer-events-none" />
         <div className="absolute bottom-0 left-1/3 w-[200px] h-[200px] rounded-full bg-blue-400/5 translate-y-1/2 pointer-events-none" />
 
         <div className="max-w-7xl mx-auto relative">
-         <button
-          onClick={() => navigate(-1)}
-          className="group mb-6 flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-lg shadow-black/10 transition-all hover:scale-110 active:scale-95"
-        >
-          <ArrowLeft 
-            size={18} 
-            strokeWidth={2.5} 
-            className="text-slate-900 transition-transform group-hover:-translate-x-0.5" 
-          />
-        </button>
+          <button
+            onClick={() => navigate(-1)}
+            className="group mb-6 flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-lg shadow-black/10 transition-all hover:scale-110 active:scale-95"
+          >
+            <ArrowLeft size={18} strokeWidth={2.5} className="text-slate-900 transition-transform group-hover:-translate-x-0.5" />
+          </button>
+
           <div className="inline-flex items-center gap-2 bg-blue-600/20 border border-blue-500/30 rounded-full px-3 py-1 mb-4">
             <div className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
             <span className="text-blue-300 text-xs font-bold uppercase tracking-widest">Billing</span>
@@ -268,7 +106,6 @@ function PaymentRequired() {
             Manage and complete your pending payments.
           </p>
 
-          {/* STATS PILLS */}
           {!loading && (
             <div className="mt-5 flex flex-wrap gap-3">
               <div className="flex items-center gap-2 bg-white/10 rounded-full px-4 py-1.5">
@@ -281,10 +118,10 @@ function PaymentRequired() {
                   <span className="text-yellow-200 text-xs font-bold">{pendingCount} Pending</span>
                 </div>
               )}
-              {completedCount > 0 && (
+              {walletPaidCount > 0 && (
                 <div className="flex items-center gap-2 bg-emerald-500/20 border border-emerald-500/30 rounded-full px-4 py-1.5">
                   <CheckCircle2 size={12} className="text-emerald-300" />
-                  <span className="text-emerald-200 text-xs font-bold">{completedCount} Completed</span>
+                  <span className="text-emerald-200 text-xs font-bold">{walletPaidCount} Wallet Paid</span>
                 </div>
               )}
             </div>
@@ -293,10 +130,9 @@ function PaymentRequired() {
       </div>
 
       {/* MAIN CARD */}
-      <div className="px-[5%] pb-16">
-        <div className="max-w-7xl mx-auto -mt-8 md:-mt-12 relative z-10 bg-white rounded-[2rem] shadow-2xl shadow-slate-200 border border-slate-100 p-6 md:p-10">
+      <div className="px-3 md:px-[5%] pb-16">
+        <div className="max-w-7xl mx-auto -mt-8 md:-mt-12 relative z-10 bg-white rounded-[2rem] shadow-2xl shadow-slate-200 border border-slate-100 p-4 md:p-10 overflow-hidden">
 
-          {/* SECTION HEADER */}
           <div className="flex items-center gap-3 mb-1">
             <div className="w-8 h-8 rounded-xl bg-blue-600 flex items-center justify-center">
               <CreditCard size={14} className="text-white" />
@@ -304,6 +140,13 @@ function PaymentRequired() {
             <h3 className="text-xs font-black text-slate-800 uppercase tracking-[0.2em]">Payment History</h3>
           </div>
           <p className="text-slate-400 text-xs ml-11 mb-8">Highest due amounts appear first</p>
+
+          {/* ERROR */}
+          {error && (
+            <div className="mb-4 px-4 py-3 bg-red-50 border border-red-200 rounded-2xl text-sm font-bold text-red-600">
+              {error}
+            </div>
+          )}
 
           {/* LOADING */}
           {loading && (
@@ -330,37 +173,37 @@ function PaymentRequired() {
             <div className="space-y-4">
               {sorted.map((b) => {
                 const fullyPaid = b.finalPayableAmount === 0;
-                const isPaying = payingId === b.id;
+                const isPaying  = payingId === b.id;
 
                 return (
                   <div
                     key={b.id}
-                    className={`rounded-2xl border-2 p-5 transition-all duration-200
+                    className={`rounded-2xl border-2 p-4 md:p-5 transition-all duration-200
                       ${fullyPaid
                         ? "border-emerald-100 bg-emerald-50/30"
                         : "border-yellow-100 bg-yellow-50/20"
                       }`}
                   >
                     {/* TOP ROW */}
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-3">
-                        <div className={`w-9 h-9 rounded-xl flex items-center justify-center
+                    <div className="flex items-center justify-between mb-4 gap-2">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0
                           ${fullyPaid ? "bg-emerald-500" : "bg-yellow-500"}`}>
                           {fullyPaid
                             ? <CheckCircle2 size={16} className="text-white" />
                             : <Clock size={16} className="text-white" />
                           }
                         </div>
-                        <div>
+                        <div className="min-w-0">
                           <p className="text-sm font-black text-slate-800">Booking #{b.id}</p>
                           <span className={`text-[10px] font-black uppercase tracking-wider
                             ${fullyPaid ? "text-emerald-600" : "text-yellow-600"}`}>
-                            {fullyPaid ? "Fully Paid" : "Payment Pending"}
+                            {fullyPaid ? "Wallet Paid" : "Payment Pending"}
                           </span>
                         </div>
                       </div>
 
-                      <div className="text-right">
+                      <div className="text-right flex-shrink-0">
                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">To Pay</p>
                         <p className={`text-xl font-black ${fullyPaid ? "text-emerald-600" : "text-slate-900"}`}>
                           ₹{b.finalPayableAmount}
@@ -388,6 +231,33 @@ function PaymentRequired() {
                         <span className="text-xs font-black text-slate-900">₹{b.finalPayableAmount}</span>
                       </div>
                     </div>
+
+                    {/* PAYMENT METHOD SELECTOR */}
+                    {!fullyPaid && (
+                      <div className="flex gap-2 mb-3">
+                        {[
+                          { id: "stripe",   label: "💳 Card", sub: "Debit / Credit"         },
+                          { id: "razorpay", label: "📱 UPI",  sub: "PhonePe · GPay · Paytm" },
+                        ].map((method) => (
+                          <button
+                            key={method.id}
+                            onClick={() => setSelectedMethod(prev => ({ ...prev, [b.id]: method.id }))}
+                            className={`flex-1 py-2.5 px-3 rounded-xl border-2 transition-all text-left
+                              ${(selectedMethod[b.id] || "stripe") === method.id
+                                ? "border-blue-600 bg-blue-50"
+                                : "border-slate-200 bg-white"
+                              }`}
+                          >
+                            <p className={`text-xs font-black
+                              ${(selectedMethod[b.id] || "stripe") === method.id
+                                ? "text-blue-600" : "text-slate-500"}`}>
+                              {method.label}
+                            </p>
+                            <p className="text-[10px] text-slate-400 font-medium">{method.sub}</p>
+                          </button>
+                        ))}
+                      </div>
+                    )}
 
                     {/* ACTION */}
                     {!fullyPaid ? (
