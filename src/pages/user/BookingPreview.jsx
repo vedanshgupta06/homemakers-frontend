@@ -5,7 +5,7 @@ import WalletConsentModal from "./WalletConsentModal";
 
 import {
   User, Clock, Sparkles, Home, Users,
-  IndianRupee, Check, CalendarCheck, ArrowLeft
+  IndianRupee, Check, CalendarCheck, ArrowLeft, Info
 } from "lucide-react";
 
 const HOURLY_SERVICES = ["BABYSITTING", "ELDER_CARE", "COOKING"];
@@ -88,24 +88,24 @@ function BookingPreview() {
       });
   };
 
-const handleConsentDone = () => {
-  setShowConsent(false);
-  setPendingBooking(null);
-  navigate("/user/success", {
-    state: {
-      providerName: preview.providerName,
-      slot: `${slotStartFormatted} - ${bookingEndFormatted}`,
-    },
-  });
-};
+  const handleConsentDone = () => {
+    setShowConsent(false);
+    setPendingBooking(null);
+    navigate("/user/success", {
+      state: {
+        providerName: preview.providerName,
+        // ✅ Fixed: use actual service end time, not slot end time
+        slot: `${slotStartFormatted} - ${bookingEndFormatted}`,
+      },
+    });
+  };
 
   const format = (s) =>
     s.replaceAll("_", " ").toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
 
-  const bookingMins = bookingData
+  const bookingMins         = bookingData
     ? calcBookingMinutes(bookingData.services || [], bookingData.hoursPerDay || 1)
     : 0;
-
   const slotStartFormatted  = preview ? formatTime(preview.slotStart) : "";
   const bookingEndFormatted = preview ? addMinutes(preview.slotStart, bookingMins) : "";
 
@@ -115,6 +115,7 @@ const handleConsentDone = () => {
       : `${Math.floor(bookingMins / 60)} hr ${bookingMins % 60} min`
     : `${bookingMins} min`;
 
+  // ── Loading skeleton ──────────────────────────────────────
   if (!preview) {
     return (
       <div className="min-h-screen bg-[#F8FAFC]">
@@ -138,26 +139,23 @@ const handleConsentDone = () => {
   }
 
   const details = [
-    { icon: User,     iconBg: "bg-blue-600",    label: "Provider",   value: preview.providerName },
-    { icon: Clock,    iconBg: "bg-emerald-500",  label: "Time Slot",  value: `${slotStartFormatted} – ${bookingEndFormatted}`, sub: durationLabel },
-    { icon: Sparkles, iconBg: "bg-violet-500",   label: "Services",   value: Object.keys(preview.serviceWisePrice).map(format).join(", ") },
-    { icon: Home,     iconBg: "bg-orange-500",   label: "House Size", value: preview.houseSize },
-    { icon: Users,    iconBg: "bg-sky-500",       label: "Members",    value: `${preview.members} ${preview.members === 1 ? "person" : "people"}` },
+    { icon: User,     iconBg: "bg-blue-600",   label: "Provider",   value: preview.providerName },
+    { icon: Clock,    iconBg: "bg-emerald-500", label: "Time Slot",  value: `${slotStartFormatted} – ${bookingEndFormatted}`, sub: durationLabel },
+    { icon: Sparkles, iconBg: "bg-violet-500",  label: "Services",   value: Object.keys(preview.serviceWisePrice).map(format).join(", ") },
+    { icon: Home,     iconBg: "bg-orange-500",  label: "House Size", value: preview.houseSize },
+    { icon: Users,    iconBg: "bg-sky-500",     label: "Members",    value: `${preview.members} ${preview.members === 1 ? "person" : "people"}` },
   ];
 
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
 
-      {/* HERO */}
+      {/* ── HERO ── */}
       <div className="bg-[#1E293B] pt-2 pb-20 md:pt-20 md:pb-24 px-[5%] relative overflow-hidden">
         <div className="absolute top-0 right-0 w-[400px] h-[400px] rounded-full bg-blue-600/5 -translate-y-1/2 translate-x-1/4 pointer-events-none" />
         <div className="absolute bottom-0 left-1/3 w-[200px] h-[200px] rounded-full bg-blue-400/5 translate-y-1/2 pointer-events-none" />
         <div className="max-w-7xl mx-auto relative">
-          <button
-            type="button"
-            onClick={() => navigate(-1)}
-            className="group mb-6 flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-lg shadow-black/10 transition-all hover:scale-110 active:scale-95"
-          >
+          <button type="button" onClick={() => navigate(-1)}
+            className="group mb-6 flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-lg shadow-black/10 transition-all hover:scale-110 active:scale-95">
             <ArrowLeft size={18} strokeWidth={2.5} className="text-slate-900 transition-transform group-hover:-translate-x-0.5" />
           </button>
           <div className="inline-flex items-center gap-2 bg-blue-600/20 border border-blue-500/30 rounded-full px-3 py-1 mb-4">
@@ -172,14 +170,18 @@ const handleConsentDone = () => {
           </p>
           <div className="mt-4 inline-flex items-center gap-2 bg-blue-600 rounded-full px-4 py-1.5">
             <IndianRupee size={12} className="text-white" />
-            <span className="text-white text-xs font-bold">₹{preview.totalMonthlyPrice} / month</span>
+            <span className="text-white text-xs font-bold">
+              ₹{preview.totalWithFee} / month
+            </span>
           </div>
         </div>
       </div>
 
-      {/* MAIN CARD */}
+      {/* ── MAIN CARD ── */}
       <div className="px-[5%] pb-32">
         <div className="max-w-2xl mx-auto -mt-8 md:-mt-12 relative z-10 bg-white rounded-[2rem] shadow-2xl shadow-slate-200 border border-slate-100 p-6 md:p-10">
+
+          {/* Section header */}
           <div className="flex items-center gap-3 mb-1">
             <div className="w-8 h-8 rounded-xl bg-blue-600 flex items-center justify-center">
               <CalendarCheck size={14} className="text-white" />
@@ -188,6 +190,7 @@ const handleConsentDone = () => {
           </div>
           <p className="text-slate-400 text-xs ml-11 mb-8">Please review everything before confirming</p>
 
+          {/* Detail rows */}
           <div className="space-y-3 mb-8">
             {details.map(({ icon: Icon, iconBg, label, value, sub }) => (
               <div key={label} className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-100">
@@ -209,13 +212,15 @@ const handleConsentDone = () => {
             ))}
           </div>
 
+          {/* Divider */}
           <div className="flex items-center gap-4 mb-6">
             <div className="flex-1 h-px bg-slate-100" />
             <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Pricing</span>
             <div className="flex-1 h-px bg-slate-100" />
           </div>
 
-          <div className="space-y-2 mb-6">
+          {/* Service-wise price breakdown */}
+          <div className="space-y-2 mb-4">
             {Object.entries(preview.serviceWisePrice).map(([service, price]) => (
               <div key={service} className="flex items-center justify-between px-1">
                 <span className="text-sm text-slate-500 font-medium">{format(service)}</span>
@@ -224,25 +229,48 @@ const handleConsentDone = () => {
             ))}
           </div>
 
-          <div className="flex items-center justify-between p-5 bg-[#1E293B] rounded-2xl">
+          {/* Subtotal */}
+          <div className="flex items-center justify-between px-1 pb-4 border-b border-slate-100">
+            <span className="text-sm text-slate-500 font-medium">Subtotal</span>
+            <span className="text-sm font-bold text-slate-800">₹{preview.totalMonthlyPrice}</span>
+          </div>
+
+          {/* ✅ Platform fee line — transparent, shown clearly */}
+          <div className="flex items-center justify-between px-1 py-3 border-b border-slate-100">
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-slate-500 font-medium">Platform Fee</span>
+              <div className="group relative">
+                <Info size={12} className="text-slate-300 cursor-help" />
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 bg-slate-800 text-white text-[10px] font-medium px-3 py-2 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                  A 5% fee charged to maintain and improve the platform.
+                </div>
+              </div>
+              <span className="text-[10px] font-black text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded-md">5%</span>
+            </div>
+            <span className="text-sm font-bold text-slate-800">₹{preview.platformFee}</span>
+          </div>
+
+          {/* Total with fee */}
+          <div className="flex items-center justify-between p-5 bg-[#1E293B] rounded-2xl mt-4">
             <div>
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-0.5">Total</p>
-              <p className="text-white text-sm font-bold">Per Month</p>
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-0.5">Total Payable</p>
+              <p className="text-white text-sm font-bold">Per Month · incl. platform fee</p>
             </div>
             <div className="flex items-center gap-1">
               <span className="text-blue-400 font-black text-xs">₹</span>
-              <span className="text-white font-black text-2xl">{preview.totalMonthlyPrice}</span>
+              <span className="text-white font-black text-2xl">{preview.totalWithFee}</span>
             </div>
           </div>
+
         </div>
       </div>
 
-      {/* FIXED CTA */}
+      {/* ── FIXED CTA ── */}
       <div className="fixed bottom-0 left-0 w-full bg-white/95 backdrop-blur-md border-t border-slate-100 px-4 py-3 z-50">
         <div className="max-w-2xl mx-auto flex items-center gap-4">
           <div className="hidden sm:block flex-shrink-0">
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Total / month</p>
-            <p className="text-sm font-black text-slate-800">₹{preview.totalMonthlyPrice}</p>
+            <p className="text-sm font-black text-slate-800">₹{preview.totalWithFee}</p>
           </div>
           <button
             type="button"
@@ -262,7 +290,7 @@ const handleConsentDone = () => {
         </div>
       </div>
 
-      {/* WALLET CONSENT MODAL */}
+      {/* ── WALLET CONSENT MODAL ── */}
       {showConsent && pendingBooking && (
         <WalletConsentModal
           booking={pendingBooking}

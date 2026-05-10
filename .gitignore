@@ -4,5 +4,6 @@ build/
 
 .env
 .env.local
+.env.*.local
 .vite/
 .vscode/
