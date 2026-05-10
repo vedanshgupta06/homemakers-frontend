@@ -3,39 +3,25 @@ export default function Card({ children, className = "", onClick }) {
     <div
       onClick={onClick}
       className={`
-        relative
-        ${onClick ? "cursor-pointer" : ""}
-
-        bg-white/80 backdrop-blur-md
-        border border-gray-200
-        rounded-2xl
-        p-5
-
-        transition-all duration-300 ease-out
-
-        ${onClick ? "hover:shadow-xl hover:-translate-y-1 active:scale-[0.97]" : ""}
-
-        before:absolute before:inset-0
-        before:rounded-2xl
-        before:bg-gradient-to-r
-        before:from-blue-500/0
-        before:via-indigo-500/0
-        before:to-purple-500/0
-        before:opacity-0
-        before:transition duration-300
-        before:pointer-events-none
-
-        ${onClick ? `
-          hover:before:opacity-100
-          hover:before:from-blue-500/10
-          hover:via-indigo-500/10
-          hover:to-purple-500/10
-        ` : ""}
-
+        relative overflow-hidden
+        bg-white 
+        border border-slate-100
+        rounded-[2.5rem] 
+        p-8
+        transition-all duration-500 ease-out
+        ${onClick ? "cursor-pointer hover:border-blue-600 hover:shadow-2xl hover:-translate-y-2 active:scale-[0.98]" : "shadow-sm"}
         ${className}
       `}
     >
-      {children}
+      {/* Subtle background glow for cards on hover */}
+      {onClick && (
+        <div className="absolute -right-10 -top-10 w-32 h-32 bg-blue-50 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
+      )}
+      
+      <div className="relative z-10">
+        {children}
+      </div>
     </div>
   );
 }
+
