@@ -14,3 +14,6 @@ export const getPendingProviders = () => {
 export const verifyProvider = (id) => {
   return api.put(`/api/admin/providers/${id}/verify`);
 };
+
+export const rejectProvider = (id, reason) =>
+  api.put(`/api/admin/providers/${id}/reject`, { reason });
