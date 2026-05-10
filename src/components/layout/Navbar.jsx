@@ -208,7 +208,7 @@ import api from "../../api/axios";
 import {
   User as UserIcon, LogOut, LayoutDashboard,
   Calendar, PlusCircle, Wallet, ChevronDown, Menu, X,
-  IndianRupee, Briefcase, Clock, Settings, Home, Bell
+  IndianRupee, Briefcase, Clock, Settings, Home, Bell ,HelpCircle
 } from "lucide-react";
 import { getWalletBalance } from "../../api/walletApi";
 
@@ -294,7 +294,7 @@ function Navbar() {
     { name: "Dashboard",      path: "/user",          icon: <LayoutDashboard size={16} /> },
     { name: "Bookings",       path: "/user/bookings", icon: <Calendar size={16} /> },
     { name: "Book Service",   path: "/user/services", icon: <PlusCircle size={16} /> },
-    { name: "Help & Support", path: "/user/help" },
+    { name: "Help & Support", path: "/user/help", icon: <HelpCircle size={16} /> },
   ];
 
   const providerLinks = [
