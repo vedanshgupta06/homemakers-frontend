@@ -9,6 +9,10 @@ import {
   BarChart,
   Bar,
 } from "recharts";
+
+import Container from "../../../../components/ui/Container";
+import Card from "../../../../components/ui/Card";
+
 import {
   getAdminSummary,
   getMonthlyRevenue,
@@ -26,96 +30,114 @@ export default function AdminReports() {
 
   const loadReports = async () => {
     try {
-      const summaryRes = await getAdminSummary();
-      const revenueRes = await getMonthlyRevenue();
-      const serviceRes = await getServiceDistribution();
+      const s = await getAdminSummary();
+      const r = await getMonthlyRevenue();
+      const d = await getServiceDistribution();
 
-      setSummary(summaryRes.data || {});
-      setRevenueData(revenueRes.data || []);
-      setServiceData(serviceRes.data || []);
+      setSummary(s.data || {});
+      setRevenueData(r.data || []);
+      setServiceData(d.data || []);
     } catch (err) {
-      console.error("Failed to load admin reports", err);
+      console.error(err);
     }
   };
 
+  const formatCurrency = (num = 0) =>
+    `₹${Math.round(num).toLocaleString("en-IN")}`;
+
   return (
-    <div style={{ padding: "30px" }}>
-      <h2 style={{ marginBottom: "25px" }}>Admin Reports & Analytics</h2>
+    <Container>
+      <div className="max-w-6xl mx-auto px-2 sm:px-4 space-y-6 sm:space-y-10">
 
-      {/* SUMMARY CARDS */}
-      <div style={summaryGrid}>
-        <SummaryCard title="Total Revenue" value={`₹${summary.revenue || 0}`} />
-        <SummaryCard title="Active Bookings" value={summary.activeBookings || 0} />
-        <SummaryCard title="Pending Payout" value={`₹${summary.pendingPayout || 0}`} />
-        <SummaryCard title="Active Providers" value={summary.activeProviders || 0} />
-      </div>
+        {/* 🔥 HERO */}
+        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-2xl p-4 sm:p-6 shadow-lg">
+          <p className="text-xs sm:text-sm opacity-80">Total Revenue</p>
 
-      {/* CHARTS */}
-      <div style={chartGrid}>
-        <div style={chartCard}>
-          <h4>Monthly Revenue</h4>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={revenueData}>
-              <XAxis dataKey="month" />
-              <YAxis />
-              <Tooltip />
-              <Line type="monotone" dataKey="amount" stroke="#2563eb" />
-            </LineChart>
-          </ResponsiveContainer>
+          <h1 className="text-2xl sm:text-4xl font-bold mt-1 sm:mt-2">
+            {formatCurrency(summary.revenue)}
+          </h1>
+
+          <p className="text-xs sm:text-sm mt-1 opacity-80">
+            ↓ 12% compared to last period
+          </p>
         </div>
 
-        <div style={chartCard}>
-          <h4>Service Distribution</h4>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={serviceData}>
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="value" fill="#16a34a" />
-            </BarChart>
-          </ResponsiveContainer>
+        {/* 🔥 INSIGHTS */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+          <Insight text="📉 Revenue dropping" />
+          <Insight text="🔥 Babysitting trending" />
+          <Insight text="⚠️ Payout delays rising" />
         </div>
+
+        {/* 🔥 KPI */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+          <MiniCard title="Bookings" value={summary.activeBookings} />
+          <MiniCard title="Providers" value={summary.activeProviders} />
+          <MiniCard title="Payouts" value={formatCurrency(summary.pendingPayout)} />
+          <MiniCard title="Avg Order" value="₹250" />
+        </div>
+
+        {/* 🔥 CHART 1 */}
+        <Card className="p-3 sm:p-6 overflow-hidden">
+          <h3 className="text-sm sm:text-lg font-semibold mb-3 sm:mb-4">
+            Revenue Trend
+          </h3>
+
+          <div className="w-full h-[220px] sm:h-[300px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={revenueData}>
+                <XAxis dataKey="month" stroke="#9ca3af" />
+                <YAxis stroke="#9ca3af" />
+                <Tooltip />
+                <Line
+                  type="monotone"
+                  dataKey="amount"
+                  stroke="#2563eb"
+                  strokeWidth={3}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </Card>
+
+        {/* 🔥 CHART 2 */}
+        <Card className="p-3 sm:p-6 overflow-hidden">
+          <h3 className="text-sm sm:text-lg font-semibold mb-3 sm:mb-4">
+            Service Distribution
+          </h3>
+
+          <div className="w-full h-[220px] sm:h-[300px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={serviceData}>
+                <XAxis dataKey="name" stroke="#9ca3af" />
+                <YAxis stroke="#9ca3af" />
+                <Tooltip />
+                <Bar
+                  dataKey="value"
+                  fill="#2563eb"
+                  radius={[8, 8, 0, 0]}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </Card>
+
       </div>
-    </div>
+    </Container>
   );
 }
 
-/* ================= COMPONENTS ================= */
+/* 🔹 COMPONENTS */
 
-const SummaryCard = ({ title, value }) => (
-  <div style={summaryCard}>
-    <p style={{ color: "#6b7280" }}>{title}</p>
-    <h2 style={{ marginTop: "10px" }}>{value}</h2>
-  </div>
+const Insight = ({ text }) => (
+  <Card className="p-3 sm:p-4 text-xs sm:text-sm text-gray-600">
+    {text}
+  </Card>
 );
 
-/* ================= STYLES ================= */
-
-const summaryGrid = {
-  display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-  gap: "20px",
-  marginBottom: "40px",
-};
-
-const summaryCard = {
-  background: "#ffffff",
-  padding: "20px",
-  borderRadius: "12px",
-  border: "1px solid #e5e7eb",
-  boxShadow: "0 4px 10px rgba(0,0,0,0.05)",
-};
-
-const chartGrid = {
-  display: "grid",
-  gridTemplateColumns: "1fr 1fr",
-  gap: "20px",
-};
-
-const chartCard = {
-  background: "#ffffff",
-  padding: "20px",
-  borderRadius: "12px",
-  border: "1px solid #e5e7eb",
-  boxShadow: "0 4px 10px rgba(0,0,0,0.05)",
-};
+const MiniCard = ({ title, value }) => (
+  <Card className="p-3 sm:p-4">
+    <p className="text-xs text-gray-500">{title}</p>
+    <p className="text-sm sm:text-lg font-semibold mt-1">{value}</p>
+  </Card>
+);
