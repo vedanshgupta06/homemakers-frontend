@@ -65,9 +65,18 @@ function ProviderAccountProfile() {
   if (!provider) return <p>Loading profile...</p>;
 
   return (
-
+    
     <div style={{ padding: "30px" }}>
-
+        <button
+          onClick={() => navigate(-1)}
+          className="group mb-6 flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-lg shadow-black/10 transition-all hover:scale-110 active:scale-95"
+        >
+          <ArrowLeft 
+            size={18} 
+            strokeWidth={2.5} 
+            className="text-slate-900 transition-transform group-hover:-translate-x-0.5" 
+          />
+        </button>
       <h2>My Profile</h2>
 
       {/* PHOTO */}
