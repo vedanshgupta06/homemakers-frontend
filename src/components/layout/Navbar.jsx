@@ -136,10 +136,10 @@ function Navbar() {
               TheHomemakers
             </span>
          {isProvider && (
-            <span className="hidden xs:inline-flex bg-blue-600/20 border border-blue-500/20 text-blue-300 text-[8px] font-bold px-1 py-0.5 rounded-full whitespace-nowrap flex-shrink-0">
-              Partner
-            </span>
-          )}
+          <span className="hidden xs:inline-flex bg-blue-600/20 border border-blue-500/20 text-blue-300 text-[8px] font-bold px-1 py-0.5 rounded-full whitespace-nowrap flex-shrink-0">
+            Partner
+          </span>
+        )}
           </Link>
 
           {/* CENTER NAV */}
