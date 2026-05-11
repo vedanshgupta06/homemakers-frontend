@@ -20,7 +20,9 @@
 ### Login Page
 <img width="720" height="400" alt="Screenshot 2026-05-11 122225" src="https://github.com/user-attachments/assets/24fc15e1-9815-4469-bef7-0318a82d07e8" />
 
+
 > Premium home services landing with sign-in form
+
 
 ### User Dashboard
 <img width="720" height="400" alt="Screenshot 2026-05-11 122639" src="https://github.com/user-attachments/assets/ca79edef-b39e-4951-981d-1922631d2871" />
@@ -37,12 +39,14 @@
 > Earnings overview, booking requests, attendance tracking, and availability management
 <img width="720" height="400" alt="Screenshot 2026-05-11 122756" src="https://github.com/user-attachments/assets/ab8471c7-588a-4c3e-a862-b6cffbbdd026" />
 
+
 ### Admin Panel
-<img width="1920" height="1080" alt="Screenshot 2026-05-11 122837" src="https://github.com/user-attachments/assets/02d65890-8e61-4d03-b999-50ec1f7704d1" />
+<img width="720" height="400" alt="Screenshot 2026-05-11 122837" src="https://github.com/user-attachments/assets/02d65890-8e61-4d03-b999-50ec1f7704d1" />
 
 
 > Platform analytics with revenue charts, service distribution, and operational alerts
-<img width="1920" height="1080" alt="Screenshot 2026-05-11 122847" src="https://github.com/user-attachments/assets/57df1544-9b55-4483-a876-f568332619be" />
+<img width="720" height="400" alt="Screenshot 2026-05-11 122847" src="https://github.com/user-attachments/assets/57df1544-9b55-4483-a876-f568332619be" />
+
 
 ---
 
