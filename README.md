@@ -18,7 +18,8 @@
 ## Screenshots
 
 ### Login Page
-![Login](https://homemakers-frontend.vercel.app/og-login.png)
+![Login]
+<img width="1920" height="1080" alt="Screenshot 2026-05-11 122225" src="https://github.com/user-attachments/assets/24fc15e1-9815-4469-bef7-0318a82d07e8" />
 
 > Premium home services landing with sign-in form
 
