@@ -12,7 +12,7 @@ import {
   ArrowLeft, IndianRupee, CalendarDays, ArrowRight,
   AlertTriangle, X, Bell
 } from "lucide-react";
-
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const SERVICE_META = {
   BABYSITTING:  { icon: Baby,     label: "Babysitting"  },
   ELDER_CARE:   { icon: Heart,    label: "Elder Care"   },
@@ -328,14 +328,14 @@ export default function ProvidersList() {
                         : "border-yellow-200 bg-yellow-50/20"
                       }`}
                   >
-                    <div className="flex flex-col md:flex-row gap-5">
+                    <div className="flex flex-col md:flex-row gap-5 min-w-0 overflow-hidden">
 
                       {/* AVATAR + CORE INFO */}
                       <div className="flex gap-4 items-start flex-shrink-0">
                         <div className="relative flex-shrink-0">
                           {provider.profilePhotoUrl ? (
                             <img
-                              src={`http://localhost:8080${provider.profilePhotoUrl}`}
+                              src={`${BASE_URL}${provider.profilePhotoUrl}`}
                               alt={name}
                               className="w-14 h-14 rounded-2xl object-cover border-2 border-white shadow-sm"
                               onError={e => { e.target.style.display = "none"; e.target.nextSibling.style.display = "flex"; }}
@@ -389,7 +389,7 @@ export default function ProvidersList() {
                       </div>
 
                       {/* SERVICES + DOCS */}
-                      <div className="flex-1 space-y-3 min-w-0">
+                      <div className="flex-1 space-y-3 min-w-0 overflow-hidden">
                         <div className="flex flex-wrap gap-1.5">
                           {provider.services?.map(s => {
                             const meta = SERVICE_META[s];
@@ -406,7 +406,7 @@ export default function ProvidersList() {
 
                         <div className="flex flex-wrap gap-3 items-center">
                           {provider.idProofUrl ? (
-                            <a href={`http://localhost:8080${provider.idProofUrl}`} target="_blank" rel="noreferrer"
+                            <a href={`${BASE_URL}${provider.idProofUrl}`} target="_blank" rel="noreferrer"
                               className="flex items-center gap-1.5 text-[11px] font-black text-blue-600 hover:text-blue-800 transition">
                               <FileCheck size={12} /> ID Proof
                             </a>
@@ -416,7 +416,7 @@ export default function ProvidersList() {
                             </span>
                           )}
                           {provider.addressProofUrl ? (
-                            <a href={`http://localhost:8080${provider.addressProofUrl}`} target="_blank" rel="noreferrer"
+                            <a href={`${BASE_URL}${provider.addressProofUrl}`} target="_blank" rel="noreferrer"
                               className="flex items-center gap-1.5 text-[11px] font-black text-blue-600 hover:text-blue-800 transition">
                               <FileCheck size={12} /> Address Proof
                             </a>
