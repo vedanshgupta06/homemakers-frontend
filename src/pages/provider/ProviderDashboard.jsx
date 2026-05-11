@@ -321,7 +321,7 @@ function ProviderDashboard() {
             <div className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
             <span className="text-blue-300 text-xs font-bold uppercase tracking-widest">Provider Dashboard</span>
           </div>
-          <h2 className="text-3xl md:text-4xl font-black text-white uppercase tracking-tight leading-none">
+          <h2 className="text-2xl md:text-4xl font-black text-white uppercase tracking-tight leading-none break-words">
             Welcome, <span className="text-blue-400">{user?.name || "Provider"}</span>
           </h2>
           <p className="text-slate-400 text-sm mt-3 font-medium">
@@ -427,7 +427,7 @@ function ProviderDashboard() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
 
             {/* ── Available Balance card ── */}
-            <div className={`md:col-span-2 rounded-[2rem] p-6 shadow-xl flex items-center justify-between gap-4
+            <div className={`md:col-span-2 rounded-[2rem] p-5 shadow-xl flex flex-wrap items-center justify-between gap-3
               ${isNegativeBalance
                 ? "bg-red-600 shadow-red-200"
                 : "bg-blue-600 shadow-blue-200"

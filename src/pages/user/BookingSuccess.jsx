@@ -109,7 +109,7 @@ function BookingSuccess() {
 
       {/* HERO */}
       <div className="bg-[#1E293B] pt-16 pb-20 md:pt-20 md:pb-24 px-[5%] relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-[400px] h-[400px] rounded-full bg-blue-600/5 -translate-y-1/2 translate-x-1/4 pointer-events-none" />
+       <div className="absolute top-0 right-0 w-[400px] h-[400px] rounded-full bg-blue-600/5 -translate-y-1/2 translate-x-1/4 pointer-events-none hidden md:block" />
         <div className="absolute bottom-0 left-1/3 w-[200px] h-[200px] rounded-full bg-blue-400/5 translate-y-1/2 pointer-events-none" />
 
         <div className="max-w-7xl mx-auto relative">
@@ -208,7 +208,7 @@ function BookingSuccess() {
               <ArrowRight size={14} strokeWidth={3} />
             </button>
             <button
-              onClick={() => navigate("/user")}
+              onClick={() => navigate("/user", { replace: true })}
               className="flex-1 py-3.5 rounded-2xl font-black text-sm tracking-wide bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all"
             >
               Go Home
