@@ -264,7 +264,7 @@ function ProviderProfile() {
     }
   }, [message, error]);
 
-  const getImageUrl = (url) => url ? `http://localhost:8080${url}` : null;
+  const getImageUrl = (url) => url ? `{import.meta.env.VITE_API_BASE_URL}${url}` : null;
 
   const formatService = (s) =>
     s.replaceAll("_", " ").toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
