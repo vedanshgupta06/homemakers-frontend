@@ -101,11 +101,7 @@ export default function ProviderCard({
       <div className="flex gap-4">
 
         <img
-          src={
-            provider.profilePhotoUrl
-              ? `${import.meta.env.VITE_API_BASE_URL}${provider.profilePhotoUrl}`
-              : "/default-user.png"
-          }
+          src={provider.profilePhotoUrl || "/default-user.png"}
           alt={provider.providerName}
           className="w-14 h-14 rounded-xl object-cover flex-shrink-0 border border-slate-100"
         />

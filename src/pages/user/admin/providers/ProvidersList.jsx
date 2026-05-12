@@ -334,7 +334,7 @@ export default function ProvidersList() {
                         <div className="relative flex-shrink-0">
                           {provider.profilePhotoUrl ? (
                             <img
-                              src={`${BASE_URL}${provider.profilePhotoUrl}`}
+                              src={provider.profilePhotoUrl}
                               alt={name}
                               className="w-14 h-14 rounded-2xl object-cover border-2 border-white shadow-sm"
                               onError={e => { e.target.style.display = "none"; e.target.nextSibling.style.display = "flex"; }}
@@ -408,7 +408,7 @@ export default function ProvidersList() {
 
                         <div className="flex flex-wrap gap-3 items-center">
                           {provider.idProofUrl ? (
-                            <a href={`${BASE_URL}${provider.idProofUrl}`} target="_blank" rel="noreferrer"
+                            <a href={provider.idProofUrl} target="_blank" rel="noreferrer"
                               className="flex items-center gap-1.5 text-[11px] font-black text-blue-600 hover:text-blue-800 transition">
                               <FileCheck size={12} /> ID Proof
                             </a>
@@ -418,7 +418,7 @@ export default function ProvidersList() {
                             </span>
                           )}
                           {provider.addressProofUrl ? (
-                            <a href={`${BASE_URL}${provider.addressProofUrl}`} target="_blank" rel="noreferrer"
+                            <a href={provider.addressProofUrl} target="_blank" rel="noreferrer"
                               className="flex items-center gap-1.5 text-[11px] font-black text-blue-600 hover:text-blue-800 transition">
                               <FileCheck size={12} /> Address Proof
                             </a>

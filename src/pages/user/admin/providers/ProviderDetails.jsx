@@ -179,7 +179,7 @@ export default function ProviderDetails() {
             <div className="relative flex-shrink-0">
               {provider.profilePhotoUrl ? (
                 <img
-                  src={`{import.meta.env.VITE_API_BASE_URL}${provider.profilePhotoUrl}`}
+                  src={provider.profilePhotoUrl}
                   className="w-20 h-20 rounded-2xl object-cover border-2 border-white/20"
                 />
               ) : (
@@ -380,7 +380,7 @@ export default function ProviderDetails() {
                       <span className="text-xs font-bold text-slate-600">{label}</span>
                       {url ? (
                         <a
-                          href={`{import.meta.env.VITE_API_BASE_URL}${url}`}
+                          href={url}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="flex items-center gap-1.5 text-[10px] font-black text-blue-600 uppercase tracking-wide hover:text-blue-700"
