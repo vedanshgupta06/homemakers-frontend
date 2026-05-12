@@ -103,7 +103,7 @@ export default function ProviderCard({
         <img
           src={
             provider.profilePhotoUrl
-              ? `{import.meta.env.VITE_API_BASE_URL}${provider.profilePhotoUrl}`
+              ? `${import.meta.env.VITE_API_BASE_URL}${provider.profilePhotoUrl}`
               : "/default-user.png"
           }
           alt={provider.providerName}
