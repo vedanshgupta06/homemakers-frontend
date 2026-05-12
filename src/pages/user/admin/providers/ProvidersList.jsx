@@ -1,5 +1,3 @@
-
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -12,7 +10,9 @@ import {
   ArrowLeft, IndianRupee, CalendarDays, ArrowRight,
   AlertTriangle, X, Bell
 } from "lucide-react";
+
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 const SERVICE_META = {
   BABYSITTING:  { icon: Baby,     label: "Babysitting"  },
   ELDER_CARE:   { icon: Heart,    label: "Elder Care"   },
@@ -58,7 +58,6 @@ function ConfirmModal({ open, onClose, onConfirm, type, providerName, loading, r
           </p>
         </div>
 
-        {/* ✅ Reason — only for reject */}
         {!isVerify && (
           <div className="mt-4">
             <label className="text-[10px] font-black text-slate-500 uppercase tracking-wider block mb-1.5">
@@ -79,7 +78,6 @@ function ConfirmModal({ open, onClose, onConfirm, type, providerName, loading, r
           </div>
         )}
 
-        {/* ✅ Notification info */}
         <div className="flex items-center gap-2 mt-3 p-2.5 bg-slate-50 rounded-xl border border-slate-100">
           <Bell size={11} className="text-slate-400 flex-shrink-0" />
           <p className="text-[10px] text-slate-400 font-medium">
@@ -262,17 +260,17 @@ export default function ProvidersList() {
 
           {/* SEARCH + FILTER */}
           <div className="flex flex-col sm:flex-row gap-3 mb-8">
-            <div className="flex items-center gap-3 flex-1 px-4 py-3 rounded-xl border-2 border-slate-100 bg-slate-50 focus-within:border-blue-500 focus-within:bg-white transition-all">
+            <div className="flex items-center gap-3 flex-1 px-4 py-3 rounded-xl border-2 border-slate-100 bg-slate-50 focus-within:border-blue-500 focus-within:bg-white transition-all min-w-0">
               <Search size={15} className="text-slate-400 flex-shrink-0" />
               <input
                 type="text"
                 placeholder="Search by name, email or city..."
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                className="flex-1 text-sm font-medium text-slate-800 bg-transparent outline-none placeholder:text-slate-300"
+                className="flex-1 text-sm font-medium text-slate-800 bg-transparent outline-none placeholder:text-slate-300 min-w-0"
               />
             </div>
-            <div className="flex gap-1.5 bg-slate-100 p-1 rounded-xl">
+            <div className="flex gap-1.5 bg-slate-100 p-1 rounded-xl flex-shrink-0">
               {[
                 { key: "ALL",        label: "All"      },
                 { key: "VERIFIED",   label: "Verified" },
@@ -328,10 +326,11 @@ export default function ProvidersList() {
                         : "border-yellow-200 bg-yellow-50/20"
                       }`}
                   >
-                    <div className="flex flex-col md:flex-row gap-5 min-w-0 overflow-hidden">
+                    {/* FIX 1: removed overflow-hidden, added w-full */}
+                    <div className="flex flex-col md:flex-row gap-5 w-full min-w-0">
 
                       {/* AVATAR + CORE INFO */}
-                      <div className="flex gap-4 items-start flex-shrink-0">
+                      <div className="flex gap-4 items-start min-w-0">
                         <div className="relative flex-shrink-0">
                           {provider.profilePhotoUrl ? (
                             <img
@@ -356,23 +355,25 @@ export default function ProvidersList() {
                           </div>
                         </div>
 
-                        <div className="min-w-0">
-                          <p className="text-sm font-black text-slate-900">{name}</p>
-                          <p className="text-xs text-slate-400 font-medium">{provider.user?.email}</p>
+                        {/* FIX 2: added flex-1 overflow-hidden to clamp text */}
+                        <div className="min-w-0 flex-1 overflow-hidden">
+                          <p className="text-sm font-black text-slate-900 truncate">{name}</p>
+                          {/* FIX 3: truncate long email addresses */}
+                          <p className="text-xs text-slate-400 font-medium truncate">{provider.user?.email}</p>
                           <div className="flex flex-wrap gap-2 mt-1.5">
                             {provider.city && (
                               <span className="flex items-center gap-1 text-[11px] font-bold text-slate-500">
-                                <MapPin size={10} className="text-blue-400" />
+                                <MapPin size={10} className="text-blue-400 flex-shrink-0" />
                                 {provider.city.charAt(0).toUpperCase() + provider.city.slice(1)}
                               </span>
                             )}
                             <span className="flex items-center gap-1 text-[11px] font-bold text-slate-500">
-                              <Briefcase size={10} className="text-blue-400" />
+                              <Briefcase size={10} className="text-blue-400 flex-shrink-0" />
                               {provider.experienceYears} yrs exp
                             </span>
                             {provider.rating > 0 ? (
                               <span className="flex items-center gap-1 text-[11px] font-bold text-yellow-600">
-                                <Star size={10} className="fill-yellow-400 text-yellow-400" />
+                                <Star size={10} className="fill-yellow-400 text-yellow-400 flex-shrink-0" />
                                 {provider.rating.toFixed(1)} ({provider.totalRatings})
                               </span>
                             ) : (
@@ -380,7 +381,7 @@ export default function ProvidersList() {
                             )}
                             {provider.pricePerHour > 0 && (
                               <span className="flex items-center gap-1 text-[11px] font-bold text-slate-500">
-                                <IndianRupee size={10} className="text-blue-400" />
+                                <IndianRupee size={10} className="text-blue-400 flex-shrink-0" />
                                 ₹{provider.pricePerHour}/hr
                               </span>
                             )}
@@ -389,7 +390,8 @@ export default function ProvidersList() {
                       </div>
 
                       {/* SERVICES + DOCS */}
-                      <div className="flex-1 space-y-3 min-w-0 overflow-hidden">
+                      {/* FIX 4: replaced overflow-hidden with w-0 so flex-1 properly shrinks without clipping links */}
+                      <div className="flex-1 space-y-3 min-w-0 w-0 md:w-auto">
                         <div className="flex flex-wrap gap-1.5">
                           {provider.services?.map(s => {
                             const meta = SERVICE_META[s];
@@ -442,7 +444,8 @@ export default function ProvidersList() {
                       </div>
 
                       {/* STATUS + ACTIONS */}
-                      <div className="flex md:flex-col items-center md:items-end justify-between md:justify-start gap-3 flex-shrink-0">
+                      {/* FIX 5: flex-wrap + w-full on mobile so buttons don't overflow */}
+                      <div className="flex flex-wrap md:flex-col items-center md:items-end justify-start md:justify-start gap-3 w-full md:w-auto flex-shrink-0">
                         <span className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-black
                           ${provider.verified
                             ? "bg-emerald-100 text-emerald-700"
@@ -454,7 +457,6 @@ export default function ProvidersList() {
                           }
                         </span>
 
-                        {/* ✅ Verify — opens modal */}
                         {!provider.verified && (
                           <button
                             onClick={() => openModal("verify", provider)}
@@ -464,7 +466,6 @@ export default function ProvidersList() {
                           </button>
                         )}
 
-                        {/* ✅ Revoke — opens modal */}
                         {provider.verified && (
                           <button
                             onClick={() => openModal("reject", provider)}
